@@ -1,7 +1,8 @@
 package pl.pelotasplus.queens.features.pick_avatar
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,7 +27,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -56,7 +57,7 @@ fun PickAvatarScreen(
         }
 
     }
-    
+
     PickAvatarContent(
         modifier = modifier,
         state = state,
@@ -87,13 +88,29 @@ private fun PickAvatarContent(
     Column(
         modifier = modifier
     ) {
+        Text(
+            text = "Select your avatar",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(16.dp)
+        )
+
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(horizontal = 100.dp),
             modifier = Modifier.weight(0.5f)
         ) { currentPage ->
             val avatar = state.avatars[currentPage]
-            Box {
+            Box(
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = ripple(bounded = false),
+                    onClick = {
+                        selectedAvatar?.let { onAvatarSelected(it) }
+                    }
+                )
+            ) {
                 Image(
                     painter = painterResource(id = avatar.image),
                     contentDescription = avatar.bio,
@@ -156,7 +173,7 @@ private fun PickAvatarContent(
             ) {
                 Text(
                     "Pick ${selectedAvatar?.name.orEmpty()}!",
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         }

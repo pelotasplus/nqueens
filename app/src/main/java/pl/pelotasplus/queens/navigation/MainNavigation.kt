@@ -17,7 +17,9 @@ sealed interface MainDestinations {
     data object PickAvatar : MainDestinations
 
     @Serializable
-    data object SelectBoardSize : MainDestinations
+    data class SelectBoardSize(
+        val selectedAvatar: Int
+    ) : MainDestinations
 
     @Serializable
     data object GameScreen : MainDestinations
@@ -36,7 +38,7 @@ fun MainNavigation(
         composable<MainDestinations.PickAvatar> {
             PickAvatarScreen(
                 goToSelectBoardSize = {
-                    navController.navigate(MainDestinations.SelectBoardSize)
+                    navController.navigate(MainDestinations.SelectBoardSize(it.id))
                 }
             )
         }
