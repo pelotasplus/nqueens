@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("kotlin-kapt")
     alias(libs.plugins.dagger.hilt)
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -57,6 +58,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.dagger.hilt.android)
     implementation(libs.dagger.hilt.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     kapt(libs.dagger.hilt.compiler)
 
@@ -66,6 +71,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.navigation.testing)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
