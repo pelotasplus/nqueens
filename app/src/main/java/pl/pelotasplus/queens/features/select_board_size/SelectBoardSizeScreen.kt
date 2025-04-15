@@ -48,18 +48,23 @@ import kotlin.math.abs
 fun SelectBoardSizeScreen(
     modifier: Modifier = Modifier,
     viewModel: SelectBoardSizeViewModel = hiltViewModel(),
+    startGame: (Avatar, Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ObserveEffects(viewModel.effect) { effect ->
-
+        when (effect) {
+            is SelectBoardSizeViewModel.Effect.StartGame -> {
+                startGame(effect.avatar, effect.size)
+            }
+        }
     }
 
     SelectBoardSizeContent(
         modifier = modifier,
         state = state,
         onBoardSizeSelected = {
-
+            viewModel.handleEvent(SelectBoardSizeViewModel.Event.OnBoardSizeSelected(it))
         }
     )
 }

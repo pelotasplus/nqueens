@@ -2,6 +2,7 @@ package pl.pelotasplus.queens.data
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.domain.model.Avatar
 import javax.inject.Inject
@@ -38,4 +39,8 @@ class AvatarRepository @Inject constructor() {
             )
         )
     }
+
+    fun getAvatar(avatarId: Int): Flow<Avatar> =
+        getAvatars()
+            .map { avatars -> avatars.first { it.id == avatarId } }
 }
