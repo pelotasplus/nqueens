@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.domain.model.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
+import pl.pelotasplus.queens.ui.composable.GameBoardPosition
 import pl.pelotasplus.queens.ui.composable.GameBoardState
 import javax.inject.Inject
 
@@ -31,7 +32,7 @@ class GameViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         State(
             boardState = GameBoardState(size = navArgs.boardSize),
-            piecesLeft = navArgs.boardSize
+            gameStartTime = System.currentTimeMillis()
         )
     )
     val state = _state.asStateFlow()
@@ -50,6 +51,9 @@ class GameViewModel @Inject constructor(
                     .onEach { selectedAvatar ->
                         _state.update {
                             it.copy(
+                                boardState = it.boardState.copy(
+                                    avatar = selectedAvatar.image
+                                ),
                                 selectedAvatar = selectedAvatar
                             )
                         }
@@ -57,7 +61,32 @@ class GameViewModel @Inject constructor(
                     .launchIn(viewModelScope)
             }
 
-            is Event.OnBoardSizeSelected -> TODO()
+            is Event.OnTileClicked -> {
+                _state.update {
+                    it.copy(
+                        boardState = it.boardState.copy(
+                            pieces = if (it.boardState.pieces.contains(event.position)) {
+                                it.boardState.pieces - event.position
+                            } else if (it.boardState.movesLeft > 0) {
+                                it.boardState.pieces + event.position
+                            } else {
+                                it.boardState.pieces
+                            }
+                        )
+                    )
+                }
+            }
+
+            Event.OnRetryClicked -> {
+                _state.update {
+                    it.copy(
+                        boardState = it.boardState.copy(
+                            pieces = emptySet()
+                        ),
+                        gameStartTime = System.currentTimeMillis()
+                    )
+                }
+            }
         }
 
     }
@@ -65,14 +94,15 @@ class GameViewModel @Inject constructor(
     data class State(
         val boardState: GameBoardState,
         val selectedAvatar: Avatar? = null,
-        val piecesLeft: Int,
+        val gameStartTime: Long = 0L,
     )
 
     sealed interface Effect {
     }
 
     sealed interface Event {
-        data class OnBoardSizeSelected(val size: Int) : Event
         data class LoadSelectedAvatar(val avatarId: Int) : Event
+        data class OnTileClicked(val position: GameBoardPosition) : Event
+        data object OnRetryClicked : Event
     }
 }

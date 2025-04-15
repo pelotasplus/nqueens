@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.core.ObserveEffects
 import pl.pelotasplus.queens.ui.composable.GameBoard
+import pl.pelotasplus.queens.ui.composable.GameBoardPosition
 import pl.pelotasplus.queens.ui.composable.GameBoardState
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
@@ -42,10 +43,13 @@ fun GameScreen(
         modifier = modifier,
         state = state,
         onRetryClicked = {
-
+            viewModel.handleEvent(GameViewModel.Event.OnRetryClicked)
         },
         onTrophyClicked = {
 
+        },
+        onTileClicked = { position ->
+            viewModel.handleEvent(GameViewModel.Event.OnTileClicked(position))
         }
     )
 }
@@ -55,7 +59,8 @@ private fun GameContent(
     state: GameViewModel.State,
     modifier: Modifier = Modifier,
     onTrophyClicked: () -> Unit = {},
-    onRetryClicked: () -> Unit = {}
+    onRetryClicked: () -> Unit = {},
+    onTileClicked: (GameBoardPosition) -> Unit = { _ -> }
 ) {
     Column(modifier.padding(8.dp)) {
         Row {
@@ -97,6 +102,7 @@ private fun GameContent(
             GameBoard(
                 modifier = Modifier.align(Alignment.Center),
                 state = state.boardState,
+                onTileClicked = onTileClicked
             )
         }
 
@@ -111,7 +117,7 @@ private fun GameContent(
                 )
 
                 Text(
-                    text = state.piecesLeft.toString(),
+                    text = state.boardState.movesLeft.toString(),
                     style = MaterialTheme.typography.displayLarge
                 )
             }
@@ -119,10 +125,7 @@ private fun GameContent(
             Spacer(Modifier.weight(1f))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "2:20",
-                    style = MaterialTheme.typography.displayMedium
-                )
+                InfiniteTimer(state.gameStartTime)
 
                 Image(
                     painter = painterResource(R.drawable.clock),
@@ -142,7 +145,6 @@ private fun GameContentPreview() {
         GameContent(
             state = GameViewModel.State(
                 boardState = GameBoardState(size = 8),
-                piecesLeft = 8
             )
         )
     }
