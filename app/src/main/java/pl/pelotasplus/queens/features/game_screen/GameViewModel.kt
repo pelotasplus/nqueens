@@ -16,8 +16,11 @@ import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.domain.model.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.ui.composable.GameBoardPosition
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState
 import pl.pelotasplus.queens.ui.composable.GameBoardState
+import java.util.UUID
 import javax.inject.Inject
+import kotlin.math.min
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -44,6 +47,71 @@ class GameViewModel @Inject constructor(
         handleEvent(Event.LoadSelectedAvatar(navArgs.selectedAvatar))
     }
 
+    private fun blockOthers(
+        board: Array<Array<GameBoardPositionState>>,
+        row: Int,
+        col: Int,
+        block: Boolean
+    ) {
+        val size = board[0].size
+
+        // visiting current row and col
+        for (i in 0 until size) {
+            if (block) {
+                board[row][i] += GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+                board[i][col] += GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+            } else {
+                board[row][i] -= GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+                board[i][col] -= GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+            }
+        }
+
+        // visiting top-left diagonal
+        val delta = min(row, col)
+        var dr = row - delta
+        var dc = col - delta
+
+        while (dr < size && dc < size) {
+            if (block) {
+                board[dr][dc] += GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+            } else {
+                board[dr][dc] -= GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+            }
+            dr += 1
+            dc += 1
+        }
+
+        // visiting top-right diagonal
+        val delta2 = min(row, size - col - 1)
+        var dr2 = row - delta2
+        var dc2 = col + delta2
+        while (dr2 < size && dc2 >= 0) {
+            if (block) {
+                board[dr2][dc2] += GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+            } else {
+                board[dr2][dc2] -= GameBoardPositionState.BlockedBy(
+                    listOf(GameBoardPosition(row, col))
+                )
+            }
+            dr2 += 1
+            dc2 -= 1
+        }
+    }
+
     fun handleEvent(event: Event) {
         when (event) {
             is Event.LoadSelectedAvatar -> {
@@ -62,26 +130,54 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnTileClicked -> {
-                _state.update {
-                    it.copy(
-                        boardState = it.boardState.copy(
-                            pieces = if (it.boardState.pieces.contains(event.position)) {
-                                it.boardState.pieces - event.position
-                            } else if (it.boardState.movesLeft > 0) {
-                                it.boardState.pieces + event.position
-                            } else {
-                                it.boardState.pieces
+                val currentBoardState = _state.value.boardState
+
+                val positionState = currentBoardState.grid[event.position.row][event.position.col]
+
+                val newBoardState = when (positionState) {
+                    is GameBoardPositionState.BlockedBy -> {
+                        currentBoardState
+                    }
+
+                    GameBoardPositionState.Empty -> {
+                        currentBoardState.copy(
+                            grid = currentBoardState.grid.apply {
+                                this[event.position.row][event.position.col] =
+                                    GameBoardPositionState.Queen
+                                blockOthers(this, event.position.row, event.position.col, true)
                             }
                         )
+                    }
+
+                    GameBoardPositionState.Queen -> {
+                        currentBoardState.copy(
+                            grid = currentBoardState.grid.apply {
+                                this[event.position.row][event.position.col] =
+                                    GameBoardPositionState.Empty
+                                blockOthers(this, event.position.row, event.position.col, false)
+                            }
+                        )
+                    }
+                }
+
+                _state.update {
+                    it.copy(
+                        boardState = newBoardState,
+                        someLabel = UUID.randomUUID().toString()
                     )
                 }
             }
 
             Event.OnRetryClicked -> {
+                val size = _state.value.boardState.size
                 _state.update {
                     it.copy(
                         boardState = it.boardState.copy(
-                            pieces = emptySet()
+                            grid = Array(size) {
+                                Array(size) {
+                                    GameBoardPositionState.Empty
+                                }
+                            }
                         ),
                         gameStartTime = System.currentTimeMillis()
                     )
@@ -95,6 +191,7 @@ class GameViewModel @Inject constructor(
         val boardState: GameBoardState,
         val selectedAvatar: Avatar? = null,
         val gameStartTime: Long = 0L,
+        val someLabel: String = "a"
     )
 
     sealed interface Effect {

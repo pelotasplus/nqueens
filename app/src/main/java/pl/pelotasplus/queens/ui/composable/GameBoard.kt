@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -20,28 +21,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
-
-data class GameBoardPosition(
-    val row: Int,
-    val col: Int,
-)
-
-data class GameBoardState(
-    val size: Int,
-    val pieces: Set<GameBoardPosition> = emptySet(),
-    val avatar: Int = R.drawable.avatar1
-) {
-    val movesLeft: Int
-        get() = size - pieces.size
-}
 
 @Composable
 fun GameBoard(
     state: GameBoardState,
     modifier: Modifier = Modifier,
-    onTileClicked: (GameBoardPosition) -> Unit = { _ -> }
+    onTileClicked: (Int, Int) -> Unit = { _, _ -> }
 ) {
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
@@ -56,7 +42,7 @@ fun GameBoard(
             items(state.size * state.size) { index ->
                 val row = index / state.size
                 val col = index % state.size
-                val position = GameBoardPosition(row, col)
+                val gridState = state.grid[row][col]
                 val isLight = (row + col) % 2 == 0
 
                 Box(
@@ -66,17 +52,34 @@ fun GameBoard(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = ripple(bounded = false),
                             onClick = {
-                                onTileClicked(position)
+                                onTileClicked(row, col)
                             }
                         )
                         .background(if (isLight) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer)
                 ) {
-                    if (state.pieces.contains(position)) {
-                        Image(
-                            painter = painterResource(state.avatar),
-                            modifier = Modifier.size(tileSize),
-                            contentDescription = null
-                        )
+                    when (gridState) {
+                        is GameBoardPositionState.BlockedBy -> {
+                            val sb = StringBuilder()
+                            gridState.positions.forEach {
+                                sb.append("(${it.row}x${it.col})\n")
+                            }
+                            Text(
+                                sb.toString(),
+                                color = MaterialTheme.colorScheme.surfaceContainer
+                            )
+                        }
+
+                        GameBoardPositionState.Empty -> {
+                            // nothing to show
+                        }
+
+                        GameBoardPositionState.Queen -> {
+                            Image(
+                                painter = painterResource(state.avatar),
+                                modifier = Modifier.size(tileSize),
+                                contentDescription = null
+                            )
+                        }
                     }
                 }
             }
@@ -93,23 +96,11 @@ private fun GameBoardPreview() {
             GameBoard(
                 state = GameBoardState(
                     size = 4,
-                    pieces = setOf(
-                        GameBoardPosition(0, 0),
-                        GameBoardPosition(1, 1),
-                        GameBoardPosition(2, 2),
-                        GameBoardPosition(3, 3),
-                    )
                 )
             )
             GameBoard(
                 state = GameBoardState(
                     size = 8,
-                    pieces = setOf(
-                        GameBoardPosition(0, 0),
-                        GameBoardPosition(1, 1),
-                        GameBoardPosition(2, 2),
-                        GameBoardPosition(3, 3),
-                    )
                 )
             )
         }

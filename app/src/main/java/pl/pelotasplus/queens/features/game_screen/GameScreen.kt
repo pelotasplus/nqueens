@@ -48,8 +48,12 @@ fun GameScreen(
         onTrophyClicked = {
 
         },
-        onTileClicked = { position ->
-            viewModel.handleEvent(GameViewModel.Event.OnTileClicked(position))
+        onTileClicked = { row, col ->
+            viewModel.handleEvent(
+                GameViewModel.Event.OnTileClicked(
+                    GameBoardPosition(row, col)
+                )
+            )
         }
     )
 }
@@ -60,7 +64,7 @@ private fun GameContent(
     modifier: Modifier = Modifier,
     onTrophyClicked: () -> Unit = {},
     onRetryClicked: () -> Unit = {},
-    onTileClicked: (GameBoardPosition) -> Unit = { _ -> }
+    onTileClicked: (Int, Int) -> Unit = { _, _ -> }
 ) {
     Column(modifier.padding(8.dp)) {
         Row {
