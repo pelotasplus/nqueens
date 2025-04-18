@@ -54,6 +54,13 @@ fun GameScreen(
                     GameBoardPosition(row, col)
                 )
             )
+        },
+        onAnimationFinished = { row, col ->
+            viewModel.handleEvent(
+                GameViewModel.Event.OnAnimationFinished(
+                    GameBoardPosition(row, col)
+                )
+            )
         }
     )
 }
@@ -64,7 +71,8 @@ private fun GameContent(
     modifier: Modifier = Modifier,
     onTrophyClicked: () -> Unit = {},
     onRetryClicked: () -> Unit = {},
-    onTileClicked: (Int, Int) -> Unit = { _, _ -> }
+    onTileClicked: (Int, Int) -> Unit = { _, _ -> },
+    onAnimationFinished: (Int, Int) -> Unit = { _, _ -> }
 ) {
     Column(modifier.padding(8.dp)) {
         Row {
@@ -106,7 +114,9 @@ private fun GameContent(
             GameBoard(
                 modifier = Modifier.align(Alignment.Center),
                 state = state.boardState,
-                onTileClicked = onTileClicked
+                label = state.someLabel,
+                onTileClicked = onTileClicked,
+                onAnimationFinished = onAnimationFinished
             )
         }
 

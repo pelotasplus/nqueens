@@ -1,6 +1,5 @@
 package pl.pelotasplus.queens.ui.composable
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,18 +16,24 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import pl.pelotasplus.queens.features.game_screen.ShakingImage
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
 @Composable
 fun GameBoard(
     state: GameBoardState,
     modifier: Modifier = Modifier,
-    onTileClicked: (Int, Int) -> Unit = { _, _ -> }
+    label: String = "",
+    onTileClicked: (Int, Int) -> Unit = { _, _ -> },
+    onAnimationFinished: (Int, Int) -> Unit = { _, _ -> }
 ) {
+    println("XXX GameBoard new state ${state} -> $label")
+//    state.dump()
+
     BoxWithConstraints(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -55,7 +60,13 @@ fun GameBoard(
                                 onTileClicked(row, col)
                             }
                         )
-                        .background(if (isLight) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer)
+                        .background(
+                            if (isLight) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            }
+                        )
                 ) {
                     when (gridState) {
                         is GameBoardPositionState.BlockedBy -> {
@@ -69,15 +80,20 @@ fun GameBoard(
                             )
                         }
 
-                        GameBoardPositionState.Empty -> {
+                        is GameBoardPositionState.Empty -> {
                             // nothing to show
                         }
 
-                        GameBoardPositionState.Queen -> {
-                            Image(
-                                painter = painterResource(state.avatar),
-                                modifier = Modifier.size(tileSize),
-                                contentDescription = null
+                        is GameBoardPositionState.Queen -> {
+                            ShakingImage(
+                                queen = gridState,
+                                imageResId = state.avatar,
+                                modifier = Modifier
+                                    .size(tileSize * 0.8f)
+                                    .align(Alignment.Center),
+                                onAnimationFinished = {
+                                    onAnimationFinished(row, col)
+                                }
                             )
                         }
                     }
