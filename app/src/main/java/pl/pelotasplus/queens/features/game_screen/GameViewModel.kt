@@ -8,16 +8,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.domain.model.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.ui.composable.GameBoardPosition
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.*
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Queen
 import pl.pelotasplus.queens.ui.composable.GameBoardState
 import java.util.UUID
 import javax.inject.Inject
@@ -46,6 +51,21 @@ class GameViewModel @Inject constructor(
 
     init {
         handleEvent(Event.LoadSelectedAvatar(navArgs.selectedAvatar))
+
+        _state.map {
+            it.boardState.movesLeft to it.selectedAvatar
+        }.filter { (movesLeft, avatar) ->
+            movesLeft == 0 && avatar != null
+        }.onEach { (movesLeft, avatar) ->
+            _effect.send(
+                Effect.ShowFinished(
+                    Effect.ShowFinished.WinnerDetails(
+                        avatar!!,
+                        "12:34"
+                    )
+                )
+            )
+        }.launchIn(viewModelScope)
     }
 
     private fun blockOthers(
@@ -150,6 +170,9 @@ class GameViewModel @Inject constructor(
 
                 val newBoardState = when (positionState) {
                     is BlockedBy -> {
+                        viewModelScope.launch {
+                            _effect.send(GameViewModel.Effect.Vibrate)
+                        }
                         currentBoardState.copy(
                             grid = currentBoardState.grid.apply {
                                 positionState.positions.forEach {
@@ -196,7 +219,7 @@ class GameViewModel @Inject constructor(
                 }
             }
 
-            Event.OnRetryClicked -> {
+            Event.OnPlayAgainClicked -> {
                 val size = _state.value.boardState.size
                 _state.update {
                     it.copy(
@@ -243,12 +266,21 @@ class GameViewModel @Inject constructor(
     )
 
     sealed interface Effect {
+        object Vibrate : Effect
+        data class ShowFinished(
+            val winnerDetails: WinnerDetails,
+        ) : Effect {
+            data class WinnerDetails(
+                val avatar: Avatar,
+                val timeElapsed: String
+            )
+        }
     }
 
     sealed interface Event {
+        data object OnPlayAgainClicked : Event
         data class LoadSelectedAvatar(val avatarId: Int) : Event
         data class OnTileClicked(val position: GameBoardPosition) : Event
         data class OnAnimationFinished(val position: GameBoardPosition) : Event
-        data object OnRetryClicked : Event
     }
 }

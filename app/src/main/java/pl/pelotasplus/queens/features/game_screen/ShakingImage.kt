@@ -65,7 +65,7 @@ fun ShakingImage(
 
     Image(
         painter = painterResource(id = imageResId),
-        contentDescription = "Rotating Image",
+        contentDescription = null,
         modifier = modifier
             .graphicsLayer(
                 clip = true,
