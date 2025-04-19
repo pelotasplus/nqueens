@@ -1,6 +1,8 @@
 package pl.pelotasplus.queens.ui.composable
 
 import pl.pelotasplus.queens.R
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
+import kotlin.math.min
 
 data class GameBoardState(
     val size: Int,
@@ -17,6 +19,78 @@ data class GameBoardState(
             row.forEachIndexed { j, state ->
                 println("XXX $i x $j -> $state")
             }
+        }
+    }
+
+    fun blockOthers(
+        row: Int,
+        col: Int,
+        block: Boolean
+    ) {
+        println("XXX blockOthers $row $col $block")
+
+        // visiting current row and col
+        for (i in 0 until size) {
+            if (block) {
+                grid[row][i] += BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+                grid[i][col] += BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+            } else {
+                grid[row][i] -= BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+                grid[i][col] -= BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+            }
+        }
+
+        // visiting top-left diagonal
+        val delta = min(row, col)
+        var dr = row - delta
+        var dc = col - delta
+
+        while (dr < size && dc < size) {
+            if (block) {
+                grid[dr][dc] += BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+            } else {
+                grid[dr][dc] -= BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+            }
+            dr += 1
+            dc += 1
+        }
+
+        // visiting top-right diagonal
+        val delta2 = min(row, size - col - 1)
+        var dr2 = row - delta2
+        var dc2 = col + delta2
+        while (dr2 < size && dc2 >= 0) {
+            if (block) {
+                grid[dr2][dc2] += BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+            } else {
+                grid[dr2][dc2] -= BlockedBy(
+                    row, col,
+                    listOf(GameBoardPosition(row, col))
+                )
+            }
+            dr2 += 1
+            dc2 -= 1
         }
     }
 
