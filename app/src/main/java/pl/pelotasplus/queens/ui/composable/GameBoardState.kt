@@ -10,11 +10,12 @@ data class GameBoardState(
             GameBoardPositionState.Empty(row, col)
         }
     },
+    val generationTime: Long = 0L
 ) {
     fun dump() {
         grid.forEachIndexed { i, row ->
             row.forEachIndexed { j, state ->
-                println("$i x $j -> $state")
+                println("XXX $i x $j -> $state")
             }
         }
     }

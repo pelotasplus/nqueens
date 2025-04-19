@@ -3,6 +3,7 @@ package pl.pelotasplus.queens.features.game_screen
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,14 +29,9 @@ class GameViewModel @Inject constructor(
     private val avatarRepository: AvatarRepository
 ) : ViewModel() {
 
-//    private val navArgs by lazy {
-//        savedStateHandle.toRoute<MainDestinations.GameScreen>()
-//    }
-
-    val navArgs = MainDestinations.GameScreen(
-        selectedAvatar = 1,
-        boardSize = 4
-    )
+    private val navArgs by lazy {
+        savedStateHandle.toRoute<MainDestinations.GameScreen>()
+    }
 
     private val _state = MutableStateFlow(
         State(
@@ -192,7 +188,9 @@ class GameViewModel @Inject constructor(
 
                 _state.update {
                     it.copy(
-                        boardState = newBoardState,
+                        boardState = newBoardState.copy(
+                            generationTime = System.currentTimeMillis()
+                        ),
                         someLabel = UUID.randomUUID().toString()
                     )
                 }
@@ -215,14 +213,15 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnAnimationFinished -> {
-                println("XXX animation fishied for ${event.position.row} x ${event.position.col}")
+                println("XXX animation finshied for ${event.position.row} x ${event.position.col}")
                 val newBoardState = _state.value.boardState
-
+                println("XXX before update to false")
                 newBoardState.dump()
 
                 newBoardState.grid[event.position.row][event.position.col] =
                     Queen(event.position.row, event.position.col, false)
 
+                println("XXX after update to false")
                 newBoardState.dump()
 
                 _state.update {
