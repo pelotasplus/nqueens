@@ -65,7 +65,7 @@ fun GameScreen(
             }
 
             GameViewModel.Effect.Vibrate -> {
-                player.playSound(R.raw.dog_barking)
+                player.playSound(R.raw.animals_dog_barking_small )
                 vibrate(context)
             }
         }
