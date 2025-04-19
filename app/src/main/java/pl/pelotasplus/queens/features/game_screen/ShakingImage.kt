@@ -4,8 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,19 +63,15 @@ fun ShakingImage(
         else -> 0f
     }
 
-    Box(
-        modifier = modifier.fillMaxSize()
-    ) {
-        Image(
-            painter = painterResource(id = imageResId),
-            contentDescription = "Rotating Image",
-            modifier = modifier
-                .graphicsLayer(
-                    clip = true,
-                    rotationZ = currentRotation,
-                    scaleX = scale,
-                    scaleY = scale
-                )
-        )
-    }
+    Image(
+        painter = painterResource(id = imageResId),
+        contentDescription = "Rotating Image",
+        modifier = modifier
+            .graphicsLayer(
+                clip = true,
+                rotationZ = currentRotation,
+                scaleX = scale,
+                scaleY = scale
+            )
+    )
 }

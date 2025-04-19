@@ -13,12 +13,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import pl.pelotasplus.queens.features.game_screen.ShakingImage
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
@@ -39,41 +37,46 @@ fun GameBoard(
         modifier = modifier.fillMaxWidth()
     ) {
         val tileSize = this.maxWidth / state.size
-        val tileSizePx = with (density) { tileSize.toPx() }
+        val tileSizePx = with(density) { tileSize.toPx() }
+        val maxWidthPx = with(density) { maxWidth.toPx() }
 
         Box(
             modifier = Modifier
                 .size(tileSize * state.size)
         ) {
+            for (row in 0 until state.size) {
+                for (col in 0 until state.size) {
+                    val isLight = (row + col) % 2 == 0
+                    Box(
+                        modifier = Modifier
+                            .size(tileSize)
+                            .graphicsLayer(
+                                translationX = col * tileSizePx,
+                                translationY = row * tileSizePx
+                            )
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = ripple(bounded = false),
+                                onClick = {
+                                    onTileClicked(row, col)
+                                }
+                            )
+                            .background(
+                                if (isLight) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                }
+                            )
+                    )
+                }
+            }
+            for (row in 0 until state.size) {
+                for (col in 0 until state.size) {
+                    val gridState = state.grid[row][col]
+                    val translationX = col * tileSizePx
+                    val translationY = row * tileSizePx
 
-//        Column {
-        for (row in 0 until state.size) {
-//                Row {
-            for (col in 0 until state.size) {
-                val gridState = state.grid[row][col]
-                val isLight = (row + col) % 2 == 0
-                Box(
-                    modifier = Modifier
-                        .size(tileSize)
-                        .graphicsLayer(
-                            translationX = col * tileSizePx,
-                            translationY = row * tileSizePx
-                        )
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(bounded = false),
-                            onClick = {
-                                onTileClicked(row, col)
-                            }
-                        )
-                        .background(
-                            if (isLight) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            }
-                        )
-                ) {
                     when (gridState) {
                         is GameBoardPositionState.BlockedBy -> {
                             val sb = StringBuilder()
@@ -82,7 +85,13 @@ fun GameBoard(
                             }
                             Text(
                                 sb.toString(),
-                                color = MaterialTheme.colorScheme.surfaceContainer
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                modifier = Modifier
+                                    .size(tileSize)
+                                    .graphicsLayer(
+                                        translationX = translationX,
+                                        translationY = translationY
+                                    ),
                             )
                         }
 
@@ -95,8 +104,11 @@ fun GameBoard(
                                 queen = gridState,
                                 imageResId = state.avatar,
                                 modifier = Modifier
-                                    .size(tileSize) // * 0.8f)
-                                    .align(Alignment.Center),
+                                    .size(tileSize)
+                                    .graphicsLayer(
+                                        translationX = translationX,
+                                        translationY = translationY
+                                    ),
                                 onAnimationFinished = {
                                     onAnimationFinished(row, col)
                                 }
@@ -104,13 +116,10 @@ fun GameBoard(
                         }
                     }
                 }
-                    }
-//                }
             }
         }
     }
 }
-
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
