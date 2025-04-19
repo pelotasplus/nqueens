@@ -21,7 +21,6 @@ import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.ui.composable.GameBoardPosition
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Queen
 import pl.pelotasplus.queens.ui.composable.GameBoardState
 import java.util.UUID
 import javax.inject.Inject
@@ -67,9 +66,9 @@ class GameViewModel @Inject constructor(
     }
 
     fun handleEvent(event: Event) {
+        println("XXX handleEvent $event")
         when (event) {
             is Event.LoadSelectedAvatar -> {
-                println("XXX event ${event.avatarId}")
                 avatarRepository.getAvatar(event.avatarId)
                     .onEach { selectedAvatar ->
                         _state.update {
@@ -86,13 +85,9 @@ class GameViewModel @Inject constructor(
 
             is Event.OnTileClicked -> {
                 val currentBoardState = _state.value.boardState
-
-                val positionState = currentBoardState.grid[event.position.row][event.position.col]
-
-                println("XXX clicked ${event.position.row} x ${event.position.col} -> $positionState")
-
                 currentBoardState.handleClick(event.position.row, event.position.col)
 
+                val positionState = currentBoardState.grid[event.position.row][event.position.col]
                 if (positionState is BlockedBy) {
                     viewModelScope.launch {
                         _effect.send(Effect.Vibrate)
