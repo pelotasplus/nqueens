@@ -2,6 +2,7 @@ package pl.pelotasplus.queens.features.game_screen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,13 +26,9 @@ fun ShakingImage(
     modifier: Modifier = Modifier,
     onAnimationFinished: () -> Unit = {}
 ) {
-    println("XXX ShakingImage composition $queen")
-
-    // State to trigger the animation
     var triggerAnimation by remember { mutableStateOf(false) }
 
     LaunchedEffect(queen) {
-        println("XXX ShakingImage LaunchedEffect $queen")
         if (queen.shake) {
             triggerAnimation = true
         }
@@ -39,12 +36,10 @@ fun ShakingImage(
 
     val animDuration = 500
 
-//    val animationSpec = remember { tween(durationMillis = animDuration) }
-
     // rotate -15 to 15 degrees
     val rotation by animateFloatAsState(
         targetValue = if (triggerAnimation) 1f else 0f,
-//        animationSpec = tween(durationMillis = animDuration),
+        animationSpec = tween(durationMillis = animDuration),
         label = "rotation",
         finishedListener = {
             if (triggerAnimation == true) {
@@ -57,11 +52,11 @@ fun ShakingImage(
     // scale up and down
     val scale by animateFloatAsState(
         targetValue = if (triggerAnimation) 1.25f else 1f,
-//        animationSpec = tween(durationMillis = animDuration),
+        animationSpec = tween(durationMillis = animDuration),
         label = "scale"
     )
 
-    // Map the 0f-1f progress to our keyframe values
+    // map progress from 0 to 1 and then from 1 to 0 to some rotation degress
     val currentRotation = when {
         rotation < 0.2f -> lerp(0f, -15f, rotation * 5)
         rotation < 0.4f -> lerp(-15f, 0f, (rotation - 0.2f) * 5)
