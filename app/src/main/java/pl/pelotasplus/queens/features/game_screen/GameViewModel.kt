@@ -91,50 +91,19 @@ class GameViewModel @Inject constructor(
 
                 println("XXX clicked ${event.position.row} x ${event.position.col} -> $positionState")
 
-                val newBoardState = when (positionState) {
-                    is BlockedBy -> {
-                        viewModelScope.launch {
-                            _effect.send(GameViewModel.Effect.Vibrate)
-                        }
-                        currentBoardState.copy(
-                            grid = currentBoardState.grid.apply {
-                                positionState.positions.forEach {
-                                    this[it.row][it.col] = Queen(it.row, it.col, shake = true)
-                                }
+                currentBoardState.handleClick(event.position.row, event.position.col)
 
-                            }
-                        )
-                    }
-
-                    is Empty -> {
-                        currentBoardState.blockOthers(event.position.row, event.position.col, true)
-                        currentBoardState.copy(
-                            grid = currentBoardState.grid.apply {
-                                this[event.position.row][event.position.col] =
-                                    Queen(event.position.row, event.position.col, false)
-                            }
-                        )
-                    }
-
-                    is Queen -> {
-                        currentBoardState.blockOthers(event.position.row, event.position.col, false)
-                        currentBoardState.copy(
-                            grid = currentBoardState.grid.apply {
-                                this[event.position.row][event.position.col] =
-                                    Empty(
-                                        event.position.row,
-                                        event.position.col
-                                    )
-                            }
-                        )
+                if (positionState is BlockedBy) {
+                    viewModelScope.launch {
+                        _effect.send(Effect.Vibrate)
                     }
                 }
 
-                newBoardState.dump()
+                currentBoardState.dump()
 
                 _state.update {
                     it.copy(
-                        boardState = newBoardState.copy(
+                        boardState = currentBoardState.copy(
                             generationTime = System.currentTimeMillis()
                         ),
                         someLabel = UUID.randomUUID().toString()
@@ -164,8 +133,7 @@ class GameViewModel @Inject constructor(
                 println("XXX before update to false")
                 newBoardState.dump()
 
-                newBoardState.grid[event.position.row][event.position.col] =
-                    Queen(event.position.row, event.position.col, false)
+                newBoardState.shakeQueen(event.position.row, event.position.col, false)
 
                 println("XXX after update to false")
                 newBoardState.dump()

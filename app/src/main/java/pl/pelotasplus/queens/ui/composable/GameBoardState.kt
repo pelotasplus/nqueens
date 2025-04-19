@@ -2,6 +2,8 @@ package pl.pelotasplus.queens.ui.composable
 
 import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
+import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Queen
 import kotlin.math.min
 
 data class GameBoardState(
@@ -9,7 +11,7 @@ data class GameBoardState(
     val avatar: Int = R.drawable.avatar1,
     val grid: Array<Array<GameBoardPositionState>> = Array(size) { row ->
         Array(size) { col ->
-            GameBoardPositionState.Empty(row, col)
+            Empty(row, col)
         }
     },
     val generationTime: Long = 0L
@@ -19,6 +21,57 @@ data class GameBoardState(
             row.forEachIndexed { j, state ->
                 println("XXX $i x $j -> $state")
             }
+        }
+    }
+
+    fun handleClick(
+        row: Int,
+        col: Int
+    ) {
+        val positionState = grid[row][col]
+        println("XXX handleClick $row $col -> $positionState")
+
+        when (positionState) {
+            is BlockedBy -> {
+                positionState.positions.forEach {
+                    shakeQueen(it.row, it.col, true)
+                }
+            }
+
+            is Empty -> {
+                toggleQueen(row, col)
+                blockOthers(row, col, true)
+            }
+
+            is Queen -> {
+                toggleQueen(row, col)
+                blockOthers(row, col, false)
+            }
+        }
+    }
+
+    fun shakeQueen(
+        row: Int,
+        col: Int,
+        shake: Boolean
+    ) {
+        println("XXX shakeQueen $row $col $shake -> ${grid[row][col]}")
+
+        if (grid[row][col] is Queen) {
+            grid[row][col] = Queen(row, col, shake)
+        }
+    }
+
+    fun toggleQueen(
+        row: Int,
+        col: Int
+    ) {
+        println("XXX toggleQueen $row $col -> ${grid[row][col]}")
+
+        if (grid[row][col] is Queen) {
+            grid[row][col] = Empty(row, col)
+        } else if (grid[row][col] is Empty) {
+            grid[row][col] = Queen(row, col, false)
         }
     }
 
@@ -95,7 +148,7 @@ data class GameBoardState(
     }
 
     val movesLeft: Int
-        get() = size - grid.flatten().count { it is GameBoardPositionState.Queen }
+        get() = size - grid.flatten().count { it is Queen }
 }
 
 sealed interface GameBoardPositionState {
