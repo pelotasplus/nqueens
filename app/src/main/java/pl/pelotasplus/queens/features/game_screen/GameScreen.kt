@@ -1,5 +1,10 @@
 package pl.pelotasplus.queens.features.game_screen
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,10 +18,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,16 +43,39 @@ fun GameScreen(
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val player = remember { SoundPlayer(context) }
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showFinishedDialog by remember {
+        mutableStateOf<GameViewModel.Effect.ShowFinished.WinnerDetails?>(
+            null
+        )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            player.release()
+        }
+    }
 
     ObserveEffects(viewModel.effect) { effect ->
+        when (effect) {
+            is GameViewModel.Effect.ShowFinished -> {
+                showFinishedDialog = effect.winnerDetails
+            }
+
+            GameViewModel.Effect.Vibrate -> {
+                player.playSound(R.raw.dog_barking)
+                vibrate(context)
+            }
+        }
     }
 
     GameContent(
         modifier = modifier,
         state = state,
         onRetryClicked = {
-            viewModel.handleEvent(GameViewModel.Event.OnRetryClicked)
+            viewModel.handleEvent(GameViewModel.Event.OnPlayAgainClicked)
         },
         onTrophyClicked = {
 
@@ -54,8 +86,46 @@ fun GameScreen(
                     GameBoardPosition(row, col)
                 )
             )
+        },
+        onAnimationFinished = { row, col ->
+            viewModel.handleEvent(
+                GameViewModel.Event.OnAnimationFinished(
+                    GameBoardPosition(row, col)
+                )
+            )
         }
     )
+
+    showFinishedDialog?.let {
+        FinishedDialog(
+            winnerName = it.avatar.name,
+            timeElapsed = "12:34",
+            onPlayAgain = {
+                showFinishedDialog = null
+                viewModel.handleEvent(GameViewModel.Event.OnPlayAgainClicked)
+            },
+            onDismiss = {
+                showFinishedDialog = null
+            }
+        )
+    }
+}
+
+private fun vibrate(context: Context) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibratorManager =
+            context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibrator = vibratorManager.defaultVibrator
+        val vibrationEffect =
+            VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+        vibrator.vibrate(vibrationEffect)
+    } else {
+        @Suppress("DEPRECATION")
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        val vibrationEffect =
+            VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+        vibrator.vibrate(vibrationEffect)
+    }
 }
 
 @Composable
@@ -64,7 +134,8 @@ private fun GameContent(
     modifier: Modifier = Modifier,
     onTrophyClicked: () -> Unit = {},
     onRetryClicked: () -> Unit = {},
-    onTileClicked: (Int, Int) -> Unit = { _, _ -> }
+    onTileClicked: (Int, Int) -> Unit = { _, _ -> },
+    onAnimationFinished: (Int, Int) -> Unit = { _, _ -> }
 ) {
     Column(modifier.padding(8.dp)) {
         Row {
@@ -106,7 +177,9 @@ private fun GameContent(
             GameBoard(
                 modifier = Modifier.align(Alignment.Center),
                 state = state.boardState,
-                onTileClicked = onTileClicked
+                label = state.someLabel,
+                onTileClicked = onTileClicked,
+                onAnimationFinished = onAnimationFinished
             )
         }
 
