@@ -19,14 +19,9 @@ import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.domain.model.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.ui.composable.GameBoardPosition
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Queen
 import pl.pelotasplus.queens.ui.composable.GameBoardState
-import java.util.UUID
 import javax.inject.Inject
-import kotlin.math.min
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -68,85 +63,9 @@ class GameViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun blockOthers(
-        board: Array<Array<GameBoardPositionState>>,
-        row: Int,
-        col: Int,
-        block: Boolean
-    ) {
-        val size = board[0].size
-
-        println("XXX blockOthers $row $col $block")
-
-        // visiting current row and col
-        for (i in 0 until size) {
-            if (block) {
-                board[row][i] += BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-                board[i][col] += BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-            } else {
-                board[row][i] -= BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-                board[i][col] -= BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-            }
-        }
-
-        // visiting top-left diagonal
-        val delta = min(row, col)
-        var dr = row - delta
-        var dc = col - delta
-
-        while (dr < size && dc < size) {
-            if (block) {
-                board[dr][dc] += BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-            } else {
-                board[dr][dc] -= BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-            }
-            dr += 1
-            dc += 1
-        }
-
-        // visiting top-right diagonal
-        val delta2 = min(row, size - col - 1)
-        var dr2 = row - delta2
-        var dc2 = col + delta2
-        while (dr2 < size && dc2 >= 0) {
-            if (block) {
-                board[dr2][dc2] += BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-            } else {
-                board[dr2][dc2] -= BlockedBy(
-                    row, col,
-                    listOf(GameBoardPosition(row, col))
-                )
-            }
-            dr2 += 1
-            dc2 -= 1
-        }
-    }
-
     fun handleEvent(event: Event) {
         when (event) {
             is Event.LoadSelectedAvatar -> {
-                println("XXX event ${event.avatarId}")
                 avatarRepository.getAvatar(event.avatarId)
                     .onEach { selectedAvatar ->
                         _state.update {
@@ -162,95 +81,42 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnTileClicked -> {
-                val currentBoardState = _state.value.boardState
-
-                val positionState = currentBoardState.grid[event.position.row][event.position.col]
-
-                println("XXX clicked ${event.position.row} x ${event.position.col} -> $positionState")
-
-                val newBoardState = when (positionState) {
-                    is BlockedBy -> {
+                _state.update { currentState ->
+                    if (currentState.boardState.grid[event.position.row][event.position.col] is BlockedBy) {
                         viewModelScope.launch {
-                            _effect.send(GameViewModel.Effect.Vibrate)
+                            _effect.send(Effect.Vibrate)
                         }
-                        currentBoardState.copy(
-                            grid = currentBoardState.grid.apply {
-                                positionState.positions.forEach {
-                                    this[it.row][it.col] = Queen(it.row, it.col, shake = true)
-                                }
-
-                            }
-                        )
                     }
-
-                    is Empty -> {
-                        currentBoardState.copy(
-                            grid = currentBoardState.grid.apply {
-                                this[event.position.row][event.position.col] =
-                                    Queen(event.position.row, event.position.col, false)
-                                blockOthers(this, event.position.row, event.position.col, true)
-                            }
-                        )
-                    }
-
-                    is Queen -> {
-                        currentBoardState.copy(
-                            grid = currentBoardState.grid.apply {
-                                this[event.position.row][event.position.col] =
-                                    Empty(
-                                        event.position.row,
-                                        event.position.col
-                                    )
-                                blockOthers(this, event.position.row, event.position.col, false)
-                            }
-                        )
-                    }
-                }
-
-                newBoardState.dump()
-
-                _state.update {
-                    it.copy(
-                        boardState = newBoardState.copy(
-                            generationTime = System.currentTimeMillis()
+                    currentState.copy(
+                        boardState = currentState.boardState.handleClick(
+                            event.position.row,
+                            event.position.col
                         ),
-                        someLabel = UUID.randomUUID().toString()
                     )
                 }
             }
 
             Event.OnPlayAgainClicked -> {
-                val size = _state.value.boardState.size
                 _state.update {
                     it.copy(
-                        boardState = it.boardState.copy(
-                            grid = Array(size) { row ->
-                                Array(size) { col ->
-                                    Empty(row, col)
-                                }
-                            }
-                        ),
+                        boardState = it.boardState.emptyGrid(),
                         gameStartTime = System.currentTimeMillis()
                     )
                 }
             }
 
             is Event.OnAnimationFinished -> {
-                println("XXX animation finshied for ${event.position.row} x ${event.position.col}")
-                val newBoardState = _state.value.boardState
-                println("XXX before update to false")
-                newBoardState.dump()
-
-                newBoardState.grid[event.position.row][event.position.col] =
-                    Queen(event.position.row, event.position.col, false)
-
-                println("XXX after update to false")
-                newBoardState.dump()
-
-                _state.update {
-                    it.copy(
-                        boardState = newBoardState,
-                        someLabel = UUID.randomUUID().toString()
+                _state.update { currentState ->
+                    currentState.copy(
+                        boardState = currentState.boardState.shakeQueen(
+                            listOf(
+                                GameBoardPosition(
+                                    event.position.row,
+                                    event.position.col
+                                )
+                            ),
+                            false
+                        )
                     )
                 }
             }
@@ -262,7 +128,6 @@ class GameViewModel @Inject constructor(
         val boardState: GameBoardState,
         val selectedAvatar: Avatar? = null,
         val gameStartTime: Long = 0L,
-        val someLabel: String = "a"
     )
 
     sealed interface Effect {
