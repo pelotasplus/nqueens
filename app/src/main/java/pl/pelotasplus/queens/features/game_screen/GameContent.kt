@@ -51,20 +51,9 @@ internal fun GameContent(
 
             Spacer(Modifier.weight(1f))
 
-            Image(
-                painter = painterResource(R.drawable.retry),
-                modifier = Modifier
-                    .size(80.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(bounded = false),
-                        onClick = {
-                            onRetryClicked()
-                        }
-                    ),
-                contentDescription = null
+            RestartButton(
+                onRetryClicked = onRetryClicked
             )
-
         }
 
         Box(
