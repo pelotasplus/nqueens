@@ -659,6 +659,7 @@ style:
     excludeRawStrings: true
     ignoreAnnotated:
       - Preview
+      - Test
   MayBeConst:
     active: true
   ModifierOrder:

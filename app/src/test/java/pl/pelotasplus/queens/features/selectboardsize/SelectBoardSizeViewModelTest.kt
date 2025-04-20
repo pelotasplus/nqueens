@@ -11,21 +11,22 @@ import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import pl.pelotasplus.queens.MainDispatcherRule
 import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.navigation.MainDestinations.SelectBoardSize
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SelectBoardSizeViewModelTest {
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     private val navArgs = SelectBoardSize(selectedAvatar = 1)
     private val savedStateHandle = mockk<SavedStateHandle>()
@@ -40,14 +41,12 @@ class SelectBoardSizeViewModelTest {
     @Before
     fun before() {
         mockkStatic("androidx.navigation.SavedStateHandleKt")
-        Dispatchers.setMain(UnconfinedTestDispatcher())
 
         every { savedStateHandle.toRoute<MainDestinations.SelectBoardSize>() } returns navArgs
     }
 
     @After
     fun cleanup() {
-        Dispatchers.resetMain()
         unmockkAll()
     }
 
