@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.features.gamescreen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -58,18 +58,18 @@ fun GameScreen(
     GameContent(
         modifier = modifier,
         state = state,
-        onRetryClicked = {
+        onRetryClick = {
             viewModel.handleEvent(GameViewModel.Event.OnPlayAgainClicked)
         },
-        onTrophyClicked = {
+        onTrophyClick = {
             viewModel.handleEvent(GameViewModel.Event.OnTrophyClicked)
         },
-        onTileClicked = { row, col ->
+        onTileClick = { row, col ->
             viewModel.handleEvent(
                 GameViewModel.Event.OnTileClicked(GridPosition(row, col))
             )
         },
-        onAnimationFinished = { row, col ->
+        onAnimationFinish = { row, col ->
             viewModel.handleEvent(
                 GameViewModel.Event.OnAnimationFinished(GridPosition(row, col))
             )

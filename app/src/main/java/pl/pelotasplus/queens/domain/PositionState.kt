@@ -12,28 +12,26 @@ sealed interface PositionState {
     ) : PositionState
 
     operator fun plus(other: PositionState): PositionState {
-        if (this is Empty && other is Queen) {
-            return other
+        return if (this is Empty && other is Queen) {
+            other
+        } else if (this is BlockedBy && other is BlockedBy) {
+            BlockedBy(this.positions + other.positions)
+        } else if (this is Queen && other is Queen) {
+            Empty
+        } else if (this is Queen && other is BlockedBy) {
+            this
+        } else {
+            other
         }
-        if (this is BlockedBy && other is BlockedBy) {
-            return BlockedBy(this.positions + other.positions)
-        }
-        if (this is Queen && other is Queen) {
-            return Empty
-        }
-        if (this is Queen && other is BlockedBy) {
-            return this
-        }
-        return other
     }
 
     operator fun minus(other: PositionState): PositionState {
         if (this is BlockedBy && other is BlockedBy) {
             val newPositions = this.positions - other.positions
-            if (newPositions.isEmpty()) {
-                return Empty
+            return if (newPositions.isEmpty()) {
+                Empty
             } else {
-                return BlockedBy(newPositions)
+                BlockedBy(newPositions)
             }
         }
         return this

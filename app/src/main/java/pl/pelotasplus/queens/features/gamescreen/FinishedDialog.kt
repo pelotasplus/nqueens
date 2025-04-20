@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.features.gamescreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column

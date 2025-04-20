@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.select_board_size
+package pl.pelotasplus.queens.features.selectboardsize
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -35,7 +35,7 @@ private const val MAX_BOARD_SIZE = 8f
 internal fun SelectBoardSizeContent(
     state: SelectBoardSizeViewModel.State,
     modifier: Modifier = Modifier,
-    onBoardSizeSelected: (Int) -> Unit = {}
+    onBoardSizeSelect: (Int) -> Unit = {}
 ) {
     var sliderPosition by remember { mutableFloatStateOf(MIN_BOARD_SIZE) }
     var rotation by remember { mutableFloatStateOf(calculateRotation(sliderPosition)) }
@@ -87,7 +87,7 @@ internal fun SelectBoardSizeContent(
                 .fillMaxWidth()
                 .padding(32.dp),
             onClick = {
-                onBoardSizeSelected(sliderPosition.toInt())
+                onBoardSizeSelect(sliderPosition.toInt())
             }
         ) {
             Text(
@@ -98,6 +98,7 @@ internal fun SelectBoardSizeContent(
     }
 }
 
+@Suppress("MagicNumber")
 private fun calculateRotation(position: Float): Float {
     val minRotation = -30f
     val maxRotation = minRotation * -1

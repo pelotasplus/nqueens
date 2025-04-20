@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.pick_avatar
+package pl.pelotasplus.queens.features.pickavatar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

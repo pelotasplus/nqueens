@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.features.gamescreen
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -22,7 +22,7 @@ import pl.pelotasplus.queens.R
 
 @Composable
 internal fun RestartButton(
-    onRetryClicked: () -> Unit = {}
+    onRetryClick: () -> Unit = {}
 ) {
     val rotation = remember { Animatable(0f) }
     var trigger by remember { mutableIntStateOf(0) }
@@ -48,7 +48,7 @@ internal fun RestartButton(
                 indication = ripple(bounded = false),
                 onClick = {
                     trigger++
-                    onRetryClicked()
+                    onRetryClick()
                 }
             )
             .graphicsLayer(

@@ -11,6 +11,7 @@ class AvatarRepository @Inject constructor() {
 
     fun getAvatars(): Flow<List<Avatar>> {
         return flowOf(
+            @Suppress("MaxLineLength")
             listOf(
                 Avatar(
                     id = 1,

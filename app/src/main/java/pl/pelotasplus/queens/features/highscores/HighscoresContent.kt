@@ -35,7 +35,7 @@ import pl.pelotasplus.queens.domain.Highscore
 fun HighscoresContent(
     state: HighscoresViewModel.State,
     modifier: Modifier = Modifier,
-    onNavigateUpClicked: () -> Unit = {},
+    onNavigateUpClick: () -> Unit = {},
 ) {
     Scaffold(
         modifier = modifier,
@@ -45,7 +45,7 @@ fun HighscoresContent(
                     Text("Highscores")
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateUpClicked) {
+                    IconButton(onClick = onNavigateUpClick) {
                         Image(
                             painter = painterResource(R.drawable.go_back),
                             contentDescription = "Go back"
@@ -78,9 +78,11 @@ fun HighscoresContent(
                                 .align(Alignment.CenterVertically)
                                 .width(40.dp)
                         )
-                        Column(Modifier
-                            .fillMaxSize()
-                            .padding(start = 16.dp)) {
+                        Column(
+                            Modifier
+                                .fillMaxSize()
+                                .padding(start = 16.dp)
+                        ) {
                             Row(Modifier.weight(1f)) {
                                 Text(
                                     highscore.avatar.name,
@@ -110,7 +112,7 @@ fun HighscoresContent(
 
 @Preview(showBackground = true)
 @Composable
-fun HighscoresContentPreview() {
+private fun HighscoresContentPreview() {
     HighscoresContent(
         state = HighscoresViewModel.State(
             highscores = listOf(

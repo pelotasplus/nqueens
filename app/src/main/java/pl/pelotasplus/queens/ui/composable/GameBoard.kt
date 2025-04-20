@@ -18,15 +18,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import pl.pelotasplus.queens.domain.GameBoardState
 import pl.pelotasplus.queens.domain.PositionState
-import pl.pelotasplus.queens.features.game_screen.ShakingImage
+import pl.pelotasplus.queens.features.gamescreen.ShakingImage
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
 @Composable
 fun GameBoard(
     state: GameBoardState,
     modifier: Modifier = Modifier,
-    onTileClicked: (Int, Int) -> Unit = { _, _ -> },
-    onAnimationFinished: (Int, Int) -> Unit = { _, _ -> }
+    onTileClick: (Int, Int) -> Unit = { _, _ -> },
+    onAnimationFinish: (Int, Int) -> Unit = { _, _ -> }
 ) {
     val density = LocalDensity.current
 
@@ -54,7 +54,7 @@ fun GameBoard(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = ripple(bounded = false),
                                 onClick = {
-                                    onTileClicked(row, col)
+                                    onTileClick(row, col)
                                 }
                             )
                             .background(
@@ -108,8 +108,8 @@ fun GameBoard(
                                         translationX = translationX,
                                         translationY = translationY
                                     ),
-                                onAnimationFinished = {
-                                    onAnimationFinished(row, col)
+                                onAnimationFinish = {
+                                    onAnimationFinish(row, col)
                                 }
                             )
                         }

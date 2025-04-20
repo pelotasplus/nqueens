@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.select_board_size
+package pl.pelotasplus.queens.features.selectboardsize
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image

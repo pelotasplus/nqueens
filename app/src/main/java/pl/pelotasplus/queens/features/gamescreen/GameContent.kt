@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.features.gamescreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,10 +28,10 @@ import pl.pelotasplus.queens.ui.theme.NQueensTheme
 internal fun GameContent(
     state: GameViewModel.State,
     modifier: Modifier = Modifier,
-    onTrophyClicked: () -> Unit = {},
-    onRetryClicked: () -> Unit = {},
-    onTileClicked: (Int, Int) -> Unit = { _, _ -> },
-    onAnimationFinished: (Int, Int) -> Unit = { _, _ -> }
+    onTrophyClick: () -> Unit = {},
+    onRetryClick: () -> Unit = {},
+    onTileClick: (Int, Int) -> Unit = { _, _ -> },
+    onAnimationFinish: (Int, Int) -> Unit = { _, _ -> }
 ) {
     Column(modifier.padding(8.dp)) {
         Row {
@@ -43,7 +43,7 @@ internal fun GameContent(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = ripple(bounded = false),
                         onClick = {
-                            onTrophyClicked()
+                            onTrophyClick()
                         }
                     ),
                 contentDescription = null
@@ -52,7 +52,7 @@ internal fun GameContent(
             Spacer(Modifier.weight(1f))
 
             RestartButton(
-                onRetryClicked = onRetryClicked
+                onRetryClick = onRetryClick
             )
         }
 
@@ -62,8 +62,8 @@ internal fun GameContent(
             GameBoard(
                 modifier = Modifier.align(Alignment.Companion.Center),
                 state = state.boardState,
-                onTileClicked = onTileClicked,
-                onAnimationFinished = onAnimationFinished
+                onTileClick = onTileClick,
+                onAnimationFinish = onAnimationFinish
             )
         }
 

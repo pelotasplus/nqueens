@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.features.gamescreen
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -56,6 +56,7 @@ class GameViewModel @Inject constructor(
         handleEvent(Event.MonitorGameFinish)
     }
 
+    @Suppress("LongMethod")
     fun handleEvent(event: Event) {
         when (event) {
             is Event.LoadSelectedAvatar -> {
@@ -123,7 +124,8 @@ class GameViewModel @Inject constructor(
             Event.MonitorGameFinish -> {
                 _state
                     .filter {
-                        it.selectedAvatar != null && it.boardState.movesLeft <= 0 && it.gameStatus == State.GameStatus.InProgress
+                        it.selectedAvatar != null && it.boardState.movesLeft <= 0
+                                && it.gameStatus == State.GameStatus.InProgress
                     }
                     .distinctUntilChanged()
                     .flatMapLatest { state ->
@@ -146,6 +148,7 @@ class GameViewModel @Inject constructor(
                                 gameStatus = State.GameStatus.Finished
                             )
                         }
+                        @Suppress("MagicNumber")
                         _effect.send(
                             Effect.ShowFinished(
                                 Effect.ShowFinished.WinnerDetails(

@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.select_board_size
+package pl.pelotasplus.queens.features.selectboardsize
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

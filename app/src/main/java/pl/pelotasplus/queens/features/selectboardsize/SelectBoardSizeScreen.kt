@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.pick_avatar
+package pl.pelotasplus.queens.features.selectboardsize
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -9,27 +9,26 @@ import pl.pelotasplus.queens.core.ObserveEffects
 import pl.pelotasplus.queens.domain.Avatar
 
 @Composable
-fun PickAvatarScreen(
+fun SelectBoardSizeScreen(
     modifier: Modifier = Modifier,
-    viewModel: PickAvatarViewModel = hiltViewModel(),
-    goToSelectBoardSize: (Avatar) -> Unit
+    viewModel: SelectBoardSizeViewModel = hiltViewModel(),
+    startGame: (Avatar, Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ObserveEffects(viewModel.effect) { effect ->
         when (effect) {
-            is PickAvatarViewModel.Effect.GoToSelectBoardSize -> {
-                goToSelectBoardSize(effect.avatar)
+            is SelectBoardSizeViewModel.Effect.StartGame -> {
+                startGame(effect.avatar, effect.size)
             }
         }
-
     }
 
-    PickAvatarContent(
+    SelectBoardSizeContent(
         modifier = modifier,
         state = state,
-        onAvatarSelected = {
-            viewModel.handleEvent(PickAvatarViewModel.Event.AvatarSelected(it))
+        onBoardSizeSelect = {
+            viewModel.handleEvent(SelectBoardSizeViewModel.Event.OnBoardSizeSelected(it))
         }
     )
 }

@@ -9,9 +9,9 @@ import pl.pelotasplus.queens.core.ObserveEffects
 
 @Composable
 fun HighscoresScreen(
+    onNavigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HighscoresViewModel = hiltViewModel(),
-    onNavigateUp: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -26,7 +26,7 @@ fun HighscoresScreen(
     HighscoresContent(
         modifier = modifier,
         state = state,
-        onNavigateUpClicked = {
+        onNavigateUpClick = {
             viewModel.handleEvent(HighscoresViewModel.Event.NavigateUp)
         }
     )

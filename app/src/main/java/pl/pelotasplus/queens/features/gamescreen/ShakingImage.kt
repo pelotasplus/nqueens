@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.features.gamescreen
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
@@ -22,7 +22,7 @@ internal fun ShakingImage(
     queen: PositionState.Queen,
     @DrawableRes imageResId: Int,
     modifier: Modifier = Modifier,
-    onAnimationFinished: () -> Unit = {}
+    onAnimationFinish: () -> Unit = {}
 ) {
     var triggerAnimation by remember { mutableStateOf(false) }
 
@@ -41,7 +41,7 @@ internal fun ShakingImage(
         label = "rotation",
         finishedListener = {
             if (triggerAnimation == true) {
-                onAnimationFinished()
+                onAnimationFinish()
             }
             triggerAnimation = false
         }
@@ -55,6 +55,7 @@ internal fun ShakingImage(
     )
 
     // map progress from 0 to 1 and then from 1 to 0 to some rotation degress
+    @Suppress("MagicNumber")
     val currentRotation = when {
         rotation < 0.2f -> lerp(0f, -15f, rotation * 5)
         rotation < 0.4f -> lerp(-15f, 0f, (rotation - 0.2f) * 5)

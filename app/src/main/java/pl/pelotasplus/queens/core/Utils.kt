@@ -7,23 +7,26 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import java.util.Locale
 
+private const val VIBRATION_TIME = 500L
+
 fun vibrate(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val vibratorManager =
             context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
         val vibrator = vibratorManager.defaultVibrator
         val vibrationEffect =
-            VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+            VibrationEffect.createOneShot(VIBRATION_TIME, VibrationEffect.DEFAULT_AMPLITUDE)
         vibrator.vibrate(vibrationEffect)
     } else {
         @Suppress("DEPRECATION")
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         val vibrationEffect =
-            VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+            VibrationEffect.createOneShot(VIBRATION_TIME, VibrationEffect.DEFAULT_AMPLITUDE)
         vibrator.vibrate(vibrationEffect)
     }
 }
 
+@Suppress("MagicNumber")
 fun formatTime(seconds: Long): String {
     val minutes = seconds / 60
     val secs = seconds % 60

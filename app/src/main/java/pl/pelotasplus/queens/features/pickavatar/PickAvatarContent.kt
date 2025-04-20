@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.pick_avatar
+package pl.pelotasplus.queens.features.pickavatar
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -42,7 +42,7 @@ import kotlin.math.absoluteValue
 internal fun PickAvatarContent(
     state: PickAvatarViewModel.State,
     modifier: Modifier = Modifier,
-    onAvatarSelected: (Avatar) -> Unit = {}
+    onAvatarSelect: (Avatar) -> Unit = {}
 ) {
     val pagerState = rememberPagerState(pageCount = { state.avatars.size })
     var selectedAvatar by remember { mutableStateOf<Avatar?>(null) }
@@ -75,7 +75,7 @@ internal fun PickAvatarContent(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = ripple(bounded = false),
                     onClick = {
-                        selectedAvatar?.let { onAvatarSelected(it) }
+                        selectedAvatar?.let { onAvatarSelect(it) }
                     }
                 )
             ) {
@@ -86,8 +86,8 @@ internal fun PickAvatarContent(
                         .align(Alignment.Companion.Center)
                         .clip(RoundedCornerShape(16.dp))
                         .graphicsLayer {
-                            val pageOffset =
-                                ((pagerState.currentPage - currentPage) + pagerState.currentPageOffsetFraction).absoluteValue
+                            val pageOffset = ((pagerState.currentPage - currentPage)
+                                    + pagerState.currentPageOffsetFraction).absoluteValue
 
                             lerp(
                                 start = 0.5f,
@@ -136,7 +136,7 @@ internal fun PickAvatarContent(
                     .fillMaxWidth()
                     .padding(32.dp),
                 onClick = {
-                    selectedAvatar?.let { onAvatarSelected(it) }
+                    selectedAvatar?.let { onAvatarSelect(it) }
                 }
             ) {
                 Text(
