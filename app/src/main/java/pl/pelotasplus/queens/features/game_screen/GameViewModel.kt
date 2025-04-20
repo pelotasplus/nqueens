@@ -64,7 +64,6 @@ class GameViewModel @Inject constructor(
     }
 
     fun handleEvent(event: Event) {
-        println("XXX handleEvent $event")
         when (event) {
             is Event.LoadSelectedAvatar -> {
                 avatarRepository.getAvatar(event.avatarId)
@@ -82,27 +81,22 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnTileClicked -> {
-                val newState =
-                    _state.value.boardState.handleClick(event.position.row, event.position.col)
-
-                val positionState = newState.grid[event.position.row][event.position.col]
-                if (positionState is BlockedBy) {
-                    viewModelScope.launch {
-                        _effect.send(Effect.Vibrate)
+                _state.update { currentState ->
+                    if (currentState.boardState.grid[event.position.row][event.position.col] is BlockedBy) {
+                        viewModelScope.launch {
+                            _effect.send(Effect.Vibrate)
+                        }
                     }
-                }
-
-                newState.dump()
-
-                _state.update {
-                    it.copy(
-                        boardState = newState,
+                    currentState.copy(
+                        boardState = currentState.boardState.handleClick(
+                            event.position.row,
+                            event.position.col
+                        ),
                     )
                 }
             }
 
             Event.OnPlayAgainClicked -> {
-                val size = _state.value.boardState.size
                 _state.update {
                     it.copy(
                         boardState = it.boardState.emptyGrid(),
@@ -112,27 +106,17 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnAnimationFinished -> {
-                println("XXX animation finshied for ${event.position.row} x ${event.position.col}")
-
-                println("XXX state before")
-                _state.value.boardState.dump()
-
-                val newState = _state.value.boardState.shakeQueen(
-                    listOf(
-                        GameBoardPosition(
-                            event.position.row,
-                            event.position.col
+                _state.update { currentState ->
+                    currentState.copy(
+                        boardState = currentState.boardState.shakeQueen(
+                            listOf(
+                                GameBoardPosition(
+                                    event.position.row,
+                                    event.position.col
+                                )
+                            ),
+                            false
                         )
-                    ),
-                    false
-                )
-
-                println("XXX after update to false")
-                newState.dump()
-
-                _state.update {
-                    it.copy(
-                        boardState = newState,
                     )
                 }
             }
