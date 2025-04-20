@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -33,70 +34,72 @@ internal fun GameContent(
     onTileClick: (Int, Int) -> Unit = { _, _ -> },
     onAnimationFinish: (Int, Int) -> Unit = { _, _ -> }
 ) {
-    Column(modifier.padding(8.dp)) {
-        Row {
-            Image(
-                painter = painterResource(R.drawable.trophy),
-                modifier = Modifier
-                    .size(80.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(bounded = false),
-                        onClick = {
-                            onTrophyClick()
-                        }
-                    ),
-                contentDescription = null
-            )
-
-            Spacer(Modifier.weight(1f))
-
-            RestartButton(
-                onRetryClick = onRetryClick
-            )
-        }
-
-        Box(
-            modifier = Modifier.weight(1f)
-        ) {
-            GameBoard(
-                modifier = Modifier.align(Alignment.Companion.Center),
-                state = state.boardState,
-                onTileClick = onTileClick,
-                onAnimationFinish = onAnimationFinish
-            )
-        }
-
-        Row {
-            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+    Scaffold(modifier) {
+        Column(Modifier.padding(it).padding(8.dp)) {
+            Row {
                 Image(
-                    painter = painterResource(
-                        id = state.selectedAvatar?.image ?: R.drawable.avatar1
-                    ),
-                    modifier = Modifier.size(80.dp),
+                    painter = painterResource(R.drawable.trophy),
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = false),
+                            onClick = {
+                                onTrophyClick()
+                            }
+                        ),
                     contentDescription = null
                 )
 
-                Text(
-                    text = state.boardState.movesLeft.toString(),
-                    style = MaterialTheme.typography.displayLarge
+                Spacer(Modifier.weight(1f))
+
+                RestartButton(
+                    onRetryClick = onRetryClick
                 )
             }
 
-            Spacer(Modifier.weight(1f))
-
-            Row(verticalAlignment = Alignment.Companion.CenterVertically) {
-                InfiniteTimer(
-                    state.gameStatus == GameViewModel.State.GameStatus.InProgress,
-                    state.gameStartTime
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
+                GameBoard(
+                    modifier = Modifier.align(Alignment.Companion.Center),
+                    state = state.boardState,
+                    onTileClick = onTileClick,
+                    onAnimationFinish = onAnimationFinish
                 )
+            }
 
-                Image(
-                    painter = painterResource(R.drawable.clock),
-                    modifier = Modifier.size(80.dp),
-                    contentDescription = null
-                )
+            Row {
+                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                    Image(
+                        painter = painterResource(
+                            id = state.selectedAvatar?.image ?: R.drawable.avatar1
+                        ),
+                        modifier = Modifier.size(80.dp),
+                        contentDescription = null
+                    )
 
+                    Text(
+                        text = state.boardState.movesLeft.toString(),
+                        style = MaterialTheme.typography.displayLarge
+                    )
+                }
+
+                Spacer(Modifier.weight(1f))
+
+                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                    InfiniteTimer(
+                        state.gameStatus == GameViewModel.State.GameStatus.InProgress,
+                        state.gameStartTime
+                    )
+
+                    Image(
+                        painter = painterResource(R.drawable.clock),
+                        modifier = Modifier.size(80.dp),
+                        contentDescription = null
+                    )
+
+                }
             }
         }
     }

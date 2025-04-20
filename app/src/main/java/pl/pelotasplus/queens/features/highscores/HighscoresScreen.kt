@@ -9,7 +9,7 @@ import pl.pelotasplus.queens.core.ObserveEffects
 
 @Composable
 fun HighscoresScreen(
-    onNavigateUp: () -> Unit,
+    navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HighscoresViewModel = hiltViewModel(),
 ) {
@@ -18,7 +18,7 @@ fun HighscoresScreen(
     ObserveEffects(viewModel.effects) { effect ->
         when (effect) {
             HighscoresViewModel.Effect.NavigateUp -> {
-                onNavigateUp()
+                navigateUp()
             }
         }
     }

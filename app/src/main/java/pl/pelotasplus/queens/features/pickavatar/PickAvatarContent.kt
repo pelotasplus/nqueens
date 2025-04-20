@@ -14,7 +14,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -38,6 +41,7 @@ import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PickAvatarContent(
     state: PickAvatarViewModel.State,
@@ -53,96 +57,104 @@ internal fun PickAvatarContent(
         }
     }
 
-    Column(
+    Scaffold(
         modifier = modifier
+            .fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Select your avatar",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                }
+            )
+        }
     ) {
-        Text(
-            text = "Select your avatar",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .align(Alignment.Companion.CenterHorizontally)
-                .padding(16.dp)
-        )
+        Column(
+            modifier = Modifier.padding(it)
+        ) {
 
-        HorizontalPager(
-            state = pagerState,
-            contentPadding = PaddingValues(horizontal = 100.dp),
-            modifier = Modifier.weight(0.5f)
-        ) { currentPage ->
-            val avatar = state.avatars[currentPage]
-            Box(
-                modifier = Modifier.clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = ripple(bounded = false),
+            HorizontalPager(
+                state = pagerState,
+                contentPadding = PaddingValues(horizontal = 100.dp),
+                modifier = Modifier.weight(0.5f)
+            ) { currentPage ->
+                val avatar = state.avatars[currentPage]
+                Box(
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = false),
+                        onClick = {
+                            selectedAvatar?.let { onAvatarSelect(it) }
+                        }
+                    )
+                ) {
+                    Image(
+                        painter = painterResource(id = avatar.image),
+                        contentDescription = avatar.bio,
+                        modifier = Modifier
+                            .align(Alignment.Companion.Center)
+                            .clip(RoundedCornerShape(16.dp))
+                            .graphicsLayer {
+                                val pageOffset = ((pagerState.currentPage - currentPage)
+                                        + pagerState.currentPageOffsetFraction).absoluteValue
+
+                                lerp(
+                                    start = 0.5f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                ).also { scale ->
+                                    scaleX = scale
+                                    scaleY = scale
+                                }
+
+                                alpha = lerp(
+                                    start = 0.75f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                )
+
+                            }
+                            .fillMaxSize()
+                    )
+                }
+            }
+
+            Column(modifier = Modifier.weight(0.5f)) {
+                Text(
+                    text = selectedAvatar?.name.orEmpty(),
+                    style = MaterialTheme.typography.displayMedium,
+                    modifier = Modifier
+                        .align(Alignment.Companion.CenterHorizontally)
+                        .padding(16.dp)
+                )
+
+                Text(
+                    text = selectedAvatar?.bio.orEmpty(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Companion.Center,
+                    modifier = Modifier
+                        .align(Alignment.Companion.CenterHorizontally)
+                        .padding(16.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Button(
+                    modifier = Modifier
+                        .align(Alignment.Companion.CenterHorizontally)
+                        .fillMaxWidth()
+                        .padding(32.dp),
                     onClick = {
                         selectedAvatar?.let { onAvatarSelect(it) }
                     }
-                )
-            ) {
-                Image(
-                    painter = painterResource(id = avatar.image),
-                    contentDescription = avatar.bio,
-                    modifier = Modifier
-                        .align(Alignment.Companion.Center)
-                        .clip(RoundedCornerShape(16.dp))
-                        .graphicsLayer {
-                            val pageOffset = ((pagerState.currentPage - currentPage)
-                                    + pagerState.currentPageOffsetFraction).absoluteValue
-
-                            lerp(
-                                start = 0.5f,
-                                stop = 1f,
-                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                            ).also { scale ->
-                                scaleX = scale
-                                scaleY = scale
-                            }
-
-                            alpha = lerp(
-                                start = 0.75f,
-                                stop = 1f,
-                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                            )
-
-                        }
-                        .fillMaxSize()
-                )
-            }
-        }
-
-        Column(modifier = Modifier.weight(0.5f)) {
-            Text(
-                text = selectedAvatar?.name.orEmpty(),
-                style = MaterialTheme.typography.displayMedium,
-                modifier = Modifier
-                    .align(Alignment.Companion.CenterHorizontally)
-                    .padding(16.dp)
-            )
-
-            Text(
-                text = selectedAvatar?.bio.orEmpty(),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Companion.Center,
-                modifier = Modifier
-                    .align(Alignment.Companion.CenterHorizontally)
-                    .padding(16.dp)
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                modifier = Modifier
-                    .align(Alignment.Companion.CenterHorizontally)
-                    .fillMaxWidth()
-                    .padding(32.dp),
-                onClick = {
-                    selectedAvatar?.let { onAvatarSelect(it) }
+                ) {
+                    Text(
+                        "Pick ${selectedAvatar?.name.orEmpty()}!",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
-            ) {
-                Text(
-                    "Pick ${selectedAvatar?.name.orEmpty()}!",
-                    style = MaterialTheme.typography.bodyLarge
-                )
             }
         }
     }

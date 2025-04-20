@@ -1,12 +1,10 @@
 package pl.pelotasplus.queens.navigation
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import pl.pelotasplus.queens.features.gamescreen.GameScreen
 import pl.pelotasplus.queens.features.highscores.HighscoresScreen
 import pl.pelotasplus.queens.features.pickavatar.PickAvatarScreen
@@ -14,14 +12,14 @@ import pl.pelotasplus.queens.features.selectboardsize.SelectBoardSizeScreen
 
 @Composable
 fun MainNavigation(
-    navController: NavHostController,
-    paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
+    val navController = rememberNavController()
+
     NavHost(
-        modifier = modifier.padding(paddingValues),
+        modifier = modifier,
         navController = navController,
-        startDestination = MainDestinations.GameScreen(1, 4)
+        startDestination = MainDestinations.PickAvatar
     ) {
         composable<MainDestinations.PickAvatar> {
             PickAvatarScreen(
@@ -44,6 +42,9 @@ fun MainNavigation(
                             boardSize = size
                         )
                     )
+                },
+                navigateUp = {
+                    navController.navigateUp()
                 }
             )
         }
@@ -58,7 +59,7 @@ fun MainNavigation(
 
         composable<MainDestinations.Highscores> {
             HighscoresScreen(
-                onNavigateUp = {
+                navigateUp = {
                     navController.navigateUp()
                 }
             )

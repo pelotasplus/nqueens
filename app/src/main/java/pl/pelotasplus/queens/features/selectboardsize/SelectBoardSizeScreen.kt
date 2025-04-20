@@ -10,9 +10,10 @@ import pl.pelotasplus.queens.domain.Avatar
 
 @Composable
 fun SelectBoardSizeScreen(
+    startGame: (Avatar, Int) -> Unit,
+    navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SelectBoardSizeViewModel = hiltViewModel(),
-    startGame: (Avatar, Int) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -20,6 +21,10 @@ fun SelectBoardSizeScreen(
         when (effect) {
             is SelectBoardSizeViewModel.Effect.StartGame -> {
                 startGame(effect.avatar, effect.size)
+            }
+
+            SelectBoardSizeViewModel.Effect.NavigateUp -> {
+                navigateUp()
             }
         }
     }
@@ -29,6 +34,9 @@ fun SelectBoardSizeScreen(
         state = state,
         onBoardSizeSelect = {
             viewModel.handleEvent(SelectBoardSizeViewModel.Event.OnBoardSizeSelected(it))
+        },
+        onNavigateUpClick = {
+            viewModel.handleEvent(SelectBoardSizeViewModel.Event.OnNavigateUp)
         }
     )
 }

@@ -15,8 +15,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.domain.Avatar
+import pl.pelotasplus.queens.features.selectboardsize.SelectBoardSizeViewModel.Effect.NavigateUp
+import pl.pelotasplus.queens.features.selectboardsize.SelectBoardSizeViewModel.Effect.StartGame
 import pl.pelotasplus.queens.navigation.MainDestinations
 import javax.inject.Inject
 
@@ -48,7 +51,7 @@ class SelectBoardSizeViewModel @Inject constructor(
                     .take(1)
                     .onEach {
                         _effect.send(
-                            Effect.StartGame(it, event.size)
+                            StartGame(it, event.size)
                         )
                     }
                     .launchIn(viewModelScope)
@@ -65,6 +68,12 @@ class SelectBoardSizeViewModel @Inject constructor(
                     }
                     .launchIn(viewModelScope)
             }
+
+            Event.OnNavigateUp -> {
+                viewModelScope.launch {
+                    _effect.send(NavigateUp)
+                }
+            }
         }
     }
 
@@ -73,10 +82,12 @@ class SelectBoardSizeViewModel @Inject constructor(
     )
 
     sealed interface Effect {
+        data object NavigateUp : Effect
         data class StartGame(val avatar: Avatar, val size: Int) : Effect
     }
 
     sealed interface Event {
+        data object OnNavigateUp : Event
         data class OnBoardSizeSelected(val size: Int) : Event
         data class LoadSelectedAvatar(val avatarId: Int) : Event
     }

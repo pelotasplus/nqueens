@@ -1,13 +1,18 @@
 package pl.pelotasplus.queens.features.selectboardsize
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +23,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pelotasplus.queens.R
-import pl.pelotasplus.queens.domain.GameBoardState
 import pl.pelotasplus.queens.domain.Avatar
+import pl.pelotasplus.queens.domain.GameBoardState
 import pl.pelotasplus.queens.ui.composable.GameBoard
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 import kotlin.math.abs
@@ -35,65 +41,77 @@ private const val MAX_BOARD_SIZE = 8f
 internal fun SelectBoardSizeContent(
     state: SelectBoardSizeViewModel.State,
     modifier: Modifier = Modifier,
-    onBoardSizeSelect: (Int) -> Unit = {}
+    onBoardSizeSelect: (Int) -> Unit = {},
+    onNavigateUpClick: () -> Unit = {}
 ) {
     var sliderPosition by remember { mutableFloatStateOf(MIN_BOARD_SIZE) }
     var rotation by remember { mutableFloatStateOf(calculateRotation(sliderPosition)) }
 
-    Column(
-        modifier = modifier
-    ) {
-        Text(
-            text = "Select board size",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .align(Alignment.Companion.CenterHorizontally)
-                .padding(16.dp)
-        )
-
-        GameBoard(
-            state = GameBoardState(
-                size = sliderPosition.toInt()
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Select board size",
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateUpClick) {
+                        Image(
+                            painter = painterResource(R.drawable.go_back),
+                            contentDescription = "Go back"
+                        )
+                    }
+                },
             )
-        )
+        },
+    ) {
+        Column(
+            modifier = Modifier.padding(it)
+        ) {
+            GameBoard(
+                state = GameBoardState(
+                    size = sliderPosition.toInt()
+                )
+            )
 
-        Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
 
-        val interactionSource = remember { MutableInteractionSource() }
-        Slider(
-            interactionSource = interactionSource,
-            value = sliderPosition,
-            valueRange = MIN_BOARD_SIZE..MAX_BOARD_SIZE,
-            steps = MAX_BOARD_SIZE.toInt() - MIN_BOARD_SIZE.toInt() - 1,
-            modifier = Modifier.padding(32.dp),
-            onValueChange = {
-                sliderPosition = it
-                rotation = calculateRotation(it)
-            },
-            thumb = {
-                SliderThumb(
-                    avatar = state.selectedAvatar?.image ?: R.drawable.avatar1,
-                    interactionSource = interactionSource,
-                    modifier = Modifier.rotate(rotation)
+            val interactionSource = remember { MutableInteractionSource() }
+            Slider(
+                interactionSource = interactionSource,
+                value = sliderPosition,
+                valueRange = MIN_BOARD_SIZE..MAX_BOARD_SIZE,
+                steps = MAX_BOARD_SIZE.toInt() - MIN_BOARD_SIZE.toInt() - 1,
+                modifier = Modifier.padding(32.dp),
+                onValueChange = {
+                    sliderPosition = it
+                    rotation = calculateRotation(it)
+                },
+                thumb = {
+                    SliderThumb(
+                        avatar = state.selectedAvatar?.image ?: R.drawable.avatar1,
+                        interactionSource = interactionSource,
+                        modifier = Modifier.rotate(rotation)
+                    )
+                })
+
+            Spacer(Modifier.weight(0.1f))
+
+            Button(
+                modifier = Modifier
+                    .align(Alignment.Companion.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(32.dp), onClick = {
+                    onBoardSizeSelect(sliderPosition.toInt())
+                }) {
+                Text(
+                    "Pick ${sliderPosition.toInt()}x${sliderPosition.toInt()}",
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
-        )
-
-        Spacer(Modifier.weight(0.1f))
-
-        Button(
-            modifier = Modifier
-                .align(Alignment.Companion.CenterHorizontally)
-                .fillMaxWidth()
-                .padding(32.dp),
-            onClick = {
-                onBoardSizeSelect(sliderPosition.toInt())
-            }
-        ) {
-            Text(
-                "Pick ${sliderPosition.toInt()}x${sliderPosition.toInt()}",
-                style = MaterialTheme.typography.bodyLarge
-            )
         }
     }
 }
