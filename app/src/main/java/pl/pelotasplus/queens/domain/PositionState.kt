@@ -20,6 +20,8 @@ sealed interface PositionState {
             Empty
         } else if (this is Queen && other is BlockedBy) {
             this
+        } else if (other is Empty) {
+            this
         } else {
             other
         }
