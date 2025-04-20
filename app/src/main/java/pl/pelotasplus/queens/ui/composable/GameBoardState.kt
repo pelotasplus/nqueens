@@ -6,7 +6,7 @@ import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Queen
 import kotlin.math.min
 
-typealias Grid = List<List<GameBoardPositionState>>
+private typealias Grid = List<List<GameBoardPositionState>>
 
 private fun createEmptyGrid(size: Int) = List(size) { row ->
     List(size) { col ->
@@ -30,20 +30,11 @@ data class GameBoardState(
         )
     }
 
-    fun dump() {
-        grid.forEachIndexed { i, row ->
-            row.forEachIndexed { j, state ->
-                println("XXX $i x $j -> $state")
-            }
-        }
-    }
-
     fun handleClick(
         row: Int,
         col: Int
     ): GameBoardState {
         val positionState = grid[row][col]
-        println("XXX handleClick $row $col -> $positionState")
 
         val newState = when (positionState) {
             is BlockedBy -> {
@@ -66,8 +57,6 @@ data class GameBoardState(
         positions: List<GameBoardPosition>,
         shake: Boolean
     ): GameBoardState {
-        println("XXX shakeQueen $positions")
-
         val newGrid = grid.mutate()
 
         positions.forEach {
@@ -87,8 +76,6 @@ data class GameBoardState(
         row: Int,
         col: Int
     ): GameBoardState {
-        println("XXX toggleQueen $row $col -> ${grid[row][col]}")
-
         val newGrid = grid.mutate()
 
         if (newGrid[row][col] is Queen) {
@@ -107,8 +94,6 @@ data class GameBoardState(
         col: Int,
         block: Boolean
     ): GameBoardState {
-        println("XXX blockOthers $row $col $block")
-
         val newGrid = grid.mutate()
 
         // visiting current row and col

@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -36,7 +35,8 @@ class GameViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         State(
             boardState = GameBoardState(size = navArgs.boardSize),
-            gameStartTime = System.currentTimeMillis()
+            gameStartTime = System.currentTimeMillis(),
+            gameStatus = State.GameStatus.InProgress
         )
     )
     val state = _state.asStateFlow()
@@ -47,20 +47,25 @@ class GameViewModel @Inject constructor(
     init {
         handleEvent(Event.LoadSelectedAvatar(navArgs.selectedAvatar))
 
-        _state.map {
-            it.boardState.movesLeft to it.selectedAvatar
-        }.filter { (movesLeft, avatar) ->
-            movesLeft == 0 && avatar != null
-        }.onEach { (movesLeft, avatar) ->
-            _effect.send(
-                Effect.ShowFinished(
-                    Effect.ShowFinished.WinnerDetails(
-                        avatar!!,
-                        "12:34"
+        _state
+            .filter {
+                it.selectedAvatar != null && it.boardState.movesLeft <= 0
+            }.onEach { state ->
+                check(state.selectedAvatar != null)
+                _state.update {
+                    it.copy(
+                        gameStatus = State.GameStatus.Finished
+                    )
+                }
+                _effect.send(
+                    Effect.ShowFinished(
+                        Effect.ShowFinished.WinnerDetails(
+                            state.selectedAvatar,
+                            (System.currentTimeMillis() - state.gameStartTime) / 1000
+                        )
                     )
                 )
-            )
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     fun handleEvent(event: Event) {
@@ -81,6 +86,10 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnTileClicked -> {
+                if (_state.value.gameStatus == State.GameStatus.Finished) {
+                    return
+                }
+
                 _state.update { currentState ->
                     if (currentState.boardState.grid[event.position.row][event.position.col] is BlockedBy) {
                         viewModelScope.launch {
@@ -100,6 +109,7 @@ class GameViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         boardState = it.boardState.emptyGrid(),
+                        gameStatus = State.GameStatus.InProgress,
                         gameStartTime = System.currentTimeMillis()
                     )
                 }
@@ -128,7 +138,14 @@ class GameViewModel @Inject constructor(
         val boardState: GameBoardState,
         val selectedAvatar: Avatar? = null,
         val gameStartTime: Long = 0L,
-    )
+        val gameStatus: GameStatus = GameStatus.NotStarted
+    ) {
+        enum class GameStatus {
+            NotStarted,
+            InProgress,
+            Finished
+        }
+    }
 
     sealed interface Effect {
         object Vibrate : Effect
@@ -137,7 +154,7 @@ class GameViewModel @Inject constructor(
         ) : Effect {
             data class WinnerDetails(
                 val avatar: Avatar,
-                val timeElapsed: String
+                val timeElapsed: Long
             )
         }
     }

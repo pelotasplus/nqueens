@@ -65,7 +65,7 @@ fun GameScreen(
             }
 
             GameViewModel.Effect.Vibrate -> {
-                player.playSound(R.raw.animals_dog_barking_small )
+                player.playSound(R.raw.animals_dog_barking_small)
                 vibrate(context)
             }
         }
@@ -99,7 +99,7 @@ fun GameScreen(
     showFinishedDialog?.let {
         FinishedDialog(
             winnerName = it.avatar.name,
-            timeElapsed = "12:34",
+            timeElapsed = formatTime(it.timeElapsed),
             onPlayAgain = {
                 showFinishedDialog = null
                 viewModel.handleEvent(GameViewModel.Event.OnPlayAgainClicked)
@@ -201,7 +201,10 @@ private fun GameContent(
             Spacer(Modifier.weight(1f))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                InfiniteTimer(state.gameStartTime)
+                InfiniteTimer(
+                    state.gameStatus == GameViewModel.State.GameStatus.InProgress,
+                    state.gameStartTime
+                )
 
                 Image(
                     painter = painterResource(R.drawable.clock),

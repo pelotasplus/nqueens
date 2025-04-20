@@ -6,21 +6,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 @Composable
 fun InfiniteTimer(
+    isRunning: Boolean,
     startTime: Long,
     modifier: Modifier = Modifier,
 ) {
-    var seconds by remember { mutableIntStateOf(0) }
+    var seconds by remember { mutableLongStateOf(0) }
 
     LaunchedEffect(startTime) {
         seconds = 0
-        while (true) {
+    }
+
+    LaunchedEffect(isRunning) {
+        while (isRunning) {
             delay(1000L)
             seconds++
         }
@@ -33,8 +39,8 @@ fun InfiniteTimer(
     )
 }
 
-private fun formatTime(seconds: Int): String {
+fun formatTime(seconds: Long): String {
     val minutes = seconds / 60
     val secs = seconds % 60
-    return String.format("%02d:%02d", minutes, secs)
+    return String.format(Locale.getDefault(), "%02d:%02d", minutes, secs)
 }
