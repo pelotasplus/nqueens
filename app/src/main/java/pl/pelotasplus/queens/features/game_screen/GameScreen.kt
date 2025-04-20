@@ -177,7 +177,6 @@ private fun GameContent(
             GameBoard(
                 modifier = Modifier.align(Alignment.Center),
                 state = state.boardState,
-                label = state.someLabel,
                 onTileClicked = onTileClicked,
                 onAnimationFinished = onAnimationFinished
             )

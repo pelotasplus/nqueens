@@ -20,9 +20,7 @@ import pl.pelotasplus.queens.domain.model.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.ui.composable.GameBoardPosition
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
 import pl.pelotasplus.queens.ui.composable.GameBoardState
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -84,24 +82,21 @@ class GameViewModel @Inject constructor(
             }
 
             is Event.OnTileClicked -> {
-                val currentBoardState = _state.value.boardState
-                currentBoardState.handleClick(event.position.row, event.position.col)
+                val newState =
+                    _state.value.boardState.handleClick(event.position.row, event.position.col)
 
-                val positionState = currentBoardState.grid[event.position.row][event.position.col]
+                val positionState = newState.grid[event.position.row][event.position.col]
                 if (positionState is BlockedBy) {
                     viewModelScope.launch {
                         _effect.send(Effect.Vibrate)
                     }
                 }
 
-                currentBoardState.dump()
+                newState.dump()
 
                 _state.update {
                     it.copy(
-                        boardState = currentBoardState.copy(
-                            generationTime = System.currentTimeMillis()
-                        ),
-                        someLabel = UUID.randomUUID().toString()
+                        boardState = newState,
                     )
                 }
             }
@@ -110,13 +105,7 @@ class GameViewModel @Inject constructor(
                 val size = _state.value.boardState.size
                 _state.update {
                     it.copy(
-                        boardState = it.boardState.copy(
-                            grid = Array(size) { row ->
-                                Array(size) { col ->
-                                    Empty(row, col)
-                                }
-                            }
-                        ),
+                        boardState = it.boardState.emptyGrid(),
                         gameStartTime = System.currentTimeMillis()
                     )
                 }
@@ -124,19 +113,26 @@ class GameViewModel @Inject constructor(
 
             is Event.OnAnimationFinished -> {
                 println("XXX animation finshied for ${event.position.row} x ${event.position.col}")
-                val newBoardState = _state.value.boardState
-                println("XXX before update to false")
-                newBoardState.dump()
 
-                newBoardState.shakeQueen(event.position.row, event.position.col, false)
+                println("XXX state before")
+                _state.value.boardState.dump()
+
+                val newState = _state.value.boardState.shakeQueen(
+                    listOf(
+                        GameBoardPosition(
+                            event.position.row,
+                            event.position.col
+                        )
+                    ),
+                    false
+                )
 
                 println("XXX after update to false")
-                newBoardState.dump()
+                newState.dump()
 
                 _state.update {
                     it.copy(
-                        boardState = newBoardState,
-                        someLabel = UUID.randomUUID().toString()
+                        boardState = newState,
                     )
                 }
             }
@@ -148,7 +144,6 @@ class GameViewModel @Inject constructor(
         val boardState: GameBoardState,
         val selectedAvatar: Avatar? = null,
         val gameStartTime: Long = 0L,
-        val someLabel: String = "a"
     )
 
     sealed interface Effect {

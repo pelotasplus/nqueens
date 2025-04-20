@@ -6,16 +6,30 @@ import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Empty
 import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.Queen
 import kotlin.math.min
 
+typealias Grid = List<List<GameBoardPositionState>>
+
+private fun createEmptyGrid(size: Int) = List(size) { row ->
+    List(size) { col ->
+        Empty(row, col)
+    }
+}
+
+private fun Grid.mutate() =
+    this.map { row ->
+        row.toMutableList()
+    }.toMutableList()
+
 data class GameBoardState(
     val size: Int,
     val avatar: Int = R.drawable.avatar1,
-    val grid: Array<Array<GameBoardPositionState>> = Array(size) { row ->
-        Array(size) { col ->
-            Empty(row, col)
-        }
-    },
-    val generationTime: Long = 0L
+    val grid: Grid = createEmptyGrid(size),
 ) {
+    fun emptyGrid(): GameBoardState {
+        return copy(
+            grid = createEmptyGrid(size)
+        )
+    }
+
     fun dump() {
         grid.forEachIndexed { i, row ->
             row.forEachIndexed { j, state ->
@@ -27,97 +41,112 @@ data class GameBoardState(
     fun handleClick(
         row: Int,
         col: Int
-    ) {
+    ): GameBoardState {
         val positionState = grid[row][col]
         println("XXX handleClick $row $col -> $positionState")
 
-        when (positionState) {
+        val newState = when (positionState) {
             is BlockedBy -> {
-                positionState.positions.forEach {
-                    shakeQueen(it.row, it.col, true)
-                }
+                shakeQueen(positionState.positions, true)
             }
 
             is Empty -> {
-                toggleQueen(row, col)
-                blockOthers(row, col, true)
+                toggleQueen(row, col).blockOthers(row, col, true)
             }
 
             is Queen -> {
-                toggleQueen(row, col)
-                blockOthers(row, col, false)
+                toggleQueen(row, col).blockOthers(row, col, false)
             }
         }
+
+        return newState
     }
 
     fun shakeQueen(
-        row: Int,
-        col: Int,
+        positions: List<GameBoardPosition>,
         shake: Boolean
-    ) {
-        println("XXX shakeQueen $row $col $shake -> ${grid[row][col]}")
+    ): GameBoardState {
+        println("XXX shakeQueen $positions")
 
-        if (grid[row][col] is Queen) {
-            grid[row][col] = Queen(row, col, shake)
+        val newGrid = grid.mutate()
+
+        positions.forEach {
+            val row = it.row
+            val col = it.col
+            if (newGrid[row][col] is Queen) {
+                newGrid[row][col] = Queen(row, col, shake)
+            }
         }
+
+        return copy(
+            grid = newGrid
+        )
     }
 
     fun toggleQueen(
         row: Int,
         col: Int
-    ) {
+    ): GameBoardState {
         println("XXX toggleQueen $row $col -> ${grid[row][col]}")
 
-        if (grid[row][col] is Queen) {
-            grid[row][col] = Empty(row, col)
-        } else if (grid[row][col] is Empty) {
-            grid[row][col] = Queen(row, col, false)
+        val newGrid = grid.mutate()
+
+        if (newGrid[row][col] is Queen) {
+            newGrid[row][col] = Empty(row, col)
+        } else if (newGrid[row][col] is Empty) {
+            newGrid[row][col] = Queen(row, col, false)
         }
+
+        return copy(
+            grid = newGrid
+        )
     }
 
     fun blockOthers(
         row: Int,
         col: Int,
         block: Boolean
-    ) {
+    ): GameBoardState {
         println("XXX blockOthers $row $col $block")
+
+        val newGrid = grid.mutate()
 
         // visiting current row and col
         for (i in 0 until size) {
             if (block) {
-                grid[row][i] += BlockedBy(
+                newGrid[row][i] += BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
-                grid[i][col] += BlockedBy(
+                newGrid[i][col] += BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
             } else {
-                grid[row][i] -= BlockedBy(
+                newGrid[row][i] -= BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
-                grid[i][col] -= BlockedBy(
+                newGrid[i][col] -= BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
             }
         }
 
-        // visiting top-left diagonal
+        //  visiting top-left diagonal
         val delta = min(row, col)
         var dr = row - delta
         var dc = col - delta
 
         while (dr < size && dc < size) {
             if (block) {
-                grid[dr][dc] += BlockedBy(
+                newGrid[dr][dc] += BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
             } else {
-                grid[dr][dc] -= BlockedBy(
+                newGrid[dr][dc] -= BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
@@ -132,12 +161,12 @@ data class GameBoardState(
         var dc2 = col + delta2
         while (dr2 < size && dc2 >= 0) {
             if (block) {
-                grid[dr2][dc2] += BlockedBy(
+                newGrid[dr2][dc2] += BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
             } else {
-                grid[dr2][dc2] -= BlockedBy(
+                newGrid[dr2][dc2] -= BlockedBy(
                     row, col,
                     listOf(GameBoardPosition(row, col))
                 )
@@ -145,6 +174,10 @@ data class GameBoardState(
             dr2 += 1
             dc2 -= 1
         }
+
+        return copy(
+            grid = newGrid
+        )
     }
 
     val movesLeft: Int

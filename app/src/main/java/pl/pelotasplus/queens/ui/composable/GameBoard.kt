@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -24,13 +23,9 @@ import pl.pelotasplus.queens.ui.theme.NQueensTheme
 fun GameBoard(
     state: GameBoardState,
     modifier: Modifier = Modifier,
-    label: String = "",
     onTileClicked: (Int, Int) -> Unit = { _, _ -> },
     onAnimationFinished: (Int, Int) -> Unit = { _, _ -> }
 ) {
-    println("XXX GameBoard new state ${state} -> $label")
-    state.dump()
-
     val density = LocalDensity.current
 
     BoxWithConstraints(
@@ -38,7 +33,6 @@ fun GameBoard(
     ) {
         val tileSize = this.maxWidth / state.size
         val tileSizePx = with(density) { tileSize.toPx() }
-        val maxWidthPx = with(density) { maxWidth.toPx() }
 
         Box(
             modifier = Modifier
@@ -79,6 +73,8 @@ fun GameBoard(
 
                     when (gridState) {
                         is GameBoardPositionState.BlockedBy -> {
+                            // uncomment to show blocked positions
+                            /*
                             val sb = StringBuilder()
                             gridState.positions.forEach {
                                 sb.append("(${it.row}x${it.col})\n")
@@ -93,6 +89,7 @@ fun GameBoard(
                                         translationY = translationY
                                     ),
                             )
+                             */
                         }
 
                         is GameBoardPositionState.Empty -> {
