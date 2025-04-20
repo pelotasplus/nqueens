@@ -11,7 +11,6 @@ import io.mockk.spyk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -22,7 +21,6 @@ import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.navigation.MainDestinations
 import pl.pelotasplus.queens.navigation.MainDestinations.SelectBoardSize
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class SelectBoardSizeViewModelTest {
 
     @get:Rule
