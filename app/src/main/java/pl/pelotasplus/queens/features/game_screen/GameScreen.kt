@@ -21,6 +21,7 @@ import pl.pelotasplus.queens.core.vibrate
 fun GameScreen(
     modifier: Modifier = Modifier,
     viewModel: GameViewModel = hiltViewModel(),
+    goToHighscores: () -> Unit
 ) {
     val context = LocalContext.current
     val player = remember { SoundPlayer(context) }
@@ -47,6 +48,10 @@ fun GameScreen(
                 player.playSound(R.raw.animals_dog_barking_small)
                 vibrate(context)
             }
+
+            GameViewModel.Effect.ShowHighscores -> {
+                goToHighscores()
+            }
         }
     }
 
@@ -57,7 +62,7 @@ fun GameScreen(
             viewModel.handleEvent(GameViewModel.Event.OnPlayAgainClicked)
         },
         onTrophyClicked = {
-
+            viewModel.handleEvent(GameViewModel.Event.OnTrophyClicked)
         },
         onTileClicked = { row, col ->
             viewModel.handleEvent(

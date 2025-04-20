@@ -8,24 +8,31 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.pelotasplus.queens.data.AvatarRepository
+import pl.pelotasplus.queens.data.HighscoreRepository
+import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.domain.GameBoardState
 import pl.pelotasplus.queens.domain.GridPosition
+import pl.pelotasplus.queens.domain.Highscore
 import pl.pelotasplus.queens.domain.PositionState.BlockedBy
-import pl.pelotasplus.queens.data.AvatarRepository
-import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import javax.inject.Inject
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val avatarRepository: AvatarRepository
+    private val avatarRepository: AvatarRepository,
+    private val highscoreRepository: HighscoreRepository
 ) : ViewModel() {
 
     private val navArgs by lazy {
@@ -46,26 +53,7 @@ class GameViewModel @Inject constructor(
 
     init {
         handleEvent(Event.LoadSelectedAvatar(navArgs.selectedAvatar))
-
-        _state
-            .filter {
-                it.selectedAvatar != null && it.boardState.movesLeft <= 0
-            }.onEach { state ->
-                check(state.selectedAvatar != null)
-                _state.update {
-                    it.copy(
-                        gameStatus = State.GameStatus.Finished
-                    )
-                }
-                _effect.send(
-                    Effect.ShowFinished(
-                        Effect.ShowFinished.WinnerDetails(
-                            state.selectedAvatar,
-                            (System.currentTimeMillis() - state.gameStartTime) / 1000
-                        )
-                    )
-                )
-            }.launchIn(viewModelScope)
+        handleEvent(Event.MonitorGameFinish)
     }
 
     fun handleEvent(event: Event) {
@@ -125,6 +113,53 @@ class GameViewModel @Inject constructor(
                     )
                 }
             }
+
+            Event.OnTrophyClicked -> {
+                viewModelScope.launch {
+                    _effect.send(Effect.ShowHighscores)
+                }
+            }
+
+            Event.MonitorGameFinish -> {
+                _state
+                    .filter {
+                        it.selectedAvatar != null && it.boardState.movesLeft <= 0 && it.gameStatus == State.GameStatus.InProgress
+                    }
+                    .distinctUntilChanged()
+                    .flatMapLatest { state ->
+                        check(state.selectedAvatar != null)
+                        highscoreRepository.addHighscore(
+                            Highscore(
+                                avatar = state.selectedAvatar,
+                                boardSize = state.boardState.size,
+                                startTime = state.gameStartTime,
+                                gameTime = (System.currentTimeMillis() - state.gameStartTime) / 1000
+                            )
+                        ).map {
+                            state
+                        }
+                    }
+                    .onEach { state ->
+                        check(state.selectedAvatar != null)
+                        _state.update {
+                            it.copy(
+                                gameStatus = State.GameStatus.Finished
+                            )
+                        }
+                        _effect.send(
+                            Effect.ShowFinished(
+                                Effect.ShowFinished.WinnerDetails(
+                                    state.selectedAvatar,
+                                    (System.currentTimeMillis() - state.gameStartTime) / 1000
+                                )
+                            )
+                        )
+                    }
+                    .catch {
+                        // add error handling
+                    }
+                    .launchIn(viewModelScope)
+            }
         }
 
     }
@@ -143,7 +178,7 @@ class GameViewModel @Inject constructor(
     }
 
     sealed interface Effect {
-        object Vibrate : Effect
+        data object Vibrate : Effect
         data class ShowFinished(
             val winnerDetails: WinnerDetails,
         ) : Effect {
@@ -152,10 +187,14 @@ class GameViewModel @Inject constructor(
                 val timeElapsed: Long
             )
         }
+
+        data object ShowHighscores : Effect
     }
 
     sealed interface Event {
+        data object MonitorGameFinish : Event
         data object OnPlayAgainClicked : Event
+        data object OnTrophyClicked : Event
         data class LoadSelectedAvatar(val avatarId: Int) : Event
         data class OnTileClicked(val position: GridPosition) : Event
         data class OnAnimationFinished(val position: GridPosition) : Event
