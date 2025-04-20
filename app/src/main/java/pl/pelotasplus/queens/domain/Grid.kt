@@ -1,10 +1,8 @@
-package pl.pelotasplus.queens.core
+package pl.pelotasplus.queens.domain
 
-import pl.pelotasplus.queens.core.PositionState.Empty
+import pl.pelotasplus.queens.domain.PositionState.Empty
 
 typealias Grid = List<List<PositionState>>
-
-data class Position(val row: Int, val col: Int)
 
 fun createEmptyGrid(size: Int) =
     List(size) { row -> List(size) { col -> Empty } }

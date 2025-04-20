@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import pl.pelotasplus.queens.R
-import pl.pelotasplus.queens.domain.model.Avatar
+import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 import kotlin.math.absoluteValue
 

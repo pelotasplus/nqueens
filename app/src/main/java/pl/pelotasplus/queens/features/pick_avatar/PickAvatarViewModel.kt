@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.pelotasplus.queens.data.AvatarRepository
-import pl.pelotasplus.queens.domain.model.Avatar
+import pl.pelotasplus.queens.domain.Avatar
 import javax.inject.Inject
 
 @HiltViewModel

@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.core
+package pl.pelotasplus.queens.domain
 
 import pl.pelotasplus.queens.R
 import kotlin.math.min
@@ -41,7 +41,7 @@ data class GameBoardState(
     }
 
     fun shakeQueen(
-        positions: List<Position>,
+        positions: List<GridPosition>,
         shake: Boolean
     ): GameBoardState {
         val newGrid = grid.mutate()
@@ -85,17 +85,17 @@ data class GameBoardState(
         for (i in 0 until size) {
             if (block) {
                 newGrid[row][i] += PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
                 newGrid[i][col] += PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
             } else {
                 newGrid[row][i] -= PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
                 newGrid[i][col] -= PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
             }
         }
@@ -108,11 +108,11 @@ data class GameBoardState(
         while (dr < size && dc < size) {
             if (block) {
                 newGrid[dr][dc] += PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
             } else {
                 newGrid[dr][dc] -= PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
             }
             dr += 1
@@ -126,11 +126,11 @@ data class GameBoardState(
         while (dr2 < size && dc2 >= 0) {
             if (block) {
                 newGrid[dr2][dc2] += PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
             } else {
                 newGrid[dr2][dc2] -= PositionState.BlockedBy(
-                    listOf(Position(row, col))
+                    listOf(GridPosition(row, col))
                 )
             }
             dr2 += 1

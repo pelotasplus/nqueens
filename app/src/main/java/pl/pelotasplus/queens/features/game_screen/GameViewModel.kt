@@ -14,11 +14,11 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pl.pelotasplus.queens.core.GameBoardState
-import pl.pelotasplus.queens.core.Position
-import pl.pelotasplus.queens.core.PositionState.BlockedBy
+import pl.pelotasplus.queens.domain.GameBoardState
+import pl.pelotasplus.queens.domain.GridPosition
+import pl.pelotasplus.queens.domain.PositionState.BlockedBy
 import pl.pelotasplus.queens.data.AvatarRepository
-import pl.pelotasplus.queens.domain.model.Avatar
+import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import javax.inject.Inject
 
@@ -157,7 +157,7 @@ class GameViewModel @Inject constructor(
     sealed interface Event {
         data object OnPlayAgainClicked : Event
         data class LoadSelectedAvatar(val avatarId: Int) : Event
-        data class OnTileClicked(val position: Position) : Event
-        data class OnAnimationFinished(val position: Position) : Event
+        data class OnTileClicked(val position: GridPosition) : Event
+        data class OnAnimationFinished(val position: GridPosition) : Event
     }
 }

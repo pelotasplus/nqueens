@@ -16,8 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
-import pl.pelotasplus.queens.core.GameBoardState
-import pl.pelotasplus.queens.core.PositionState
+import pl.pelotasplus.queens.domain.GameBoardState
+import pl.pelotasplus.queens.domain.PositionState
 import pl.pelotasplus.queens.features.game_screen.ShakingImage
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 

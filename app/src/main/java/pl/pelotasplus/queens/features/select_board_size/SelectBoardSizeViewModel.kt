@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.update
 import pl.pelotasplus.queens.data.AvatarRepository
-import pl.pelotasplus.queens.domain.model.Avatar
+import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
 import javax.inject.Inject
 

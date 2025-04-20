@@ -12,7 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.core.ObserveEffects
-import pl.pelotasplus.queens.core.Position
+import pl.pelotasplus.queens.domain.GridPosition
 import pl.pelotasplus.queens.core.SoundPlayer
 import pl.pelotasplus.queens.core.formatTime
 import pl.pelotasplus.queens.core.vibrate
@@ -61,12 +61,12 @@ fun GameScreen(
         },
         onTileClicked = { row, col ->
             viewModel.handleEvent(
-                GameViewModel.Event.OnTileClicked(Position(row, col))
+                GameViewModel.Event.OnTileClicked(GridPosition(row, col))
             )
         },
         onAnimationFinished = { row, col ->
             viewModel.handleEvent(
-                GameViewModel.Event.OnAnimationFinished(Position(row, col))
+                GameViewModel.Event.OnAnimationFinished(GridPosition(row, col))
             )
         }
     )

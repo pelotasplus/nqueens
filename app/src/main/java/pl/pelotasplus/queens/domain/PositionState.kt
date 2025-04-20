@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.core
+package pl.pelotasplus.queens.domain
 
 sealed interface PositionState {
     data object Empty : PositionState
@@ -8,7 +8,7 @@ sealed interface PositionState {
     ) : PositionState
 
     data class BlockedBy(
-        val positions: List<Position>
+        val positions: List<GridPosition>
     ) : PositionState
 
     operator fun plus(other: PositionState): PositionState {

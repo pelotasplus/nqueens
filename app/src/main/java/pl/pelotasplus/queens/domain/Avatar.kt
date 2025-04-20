@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.domain.model
+package pl.pelotasplus.queens.domain
 
 import androidx.annotation.DrawableRes
 

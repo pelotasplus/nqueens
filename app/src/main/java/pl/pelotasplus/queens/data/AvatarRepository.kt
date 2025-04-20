@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import pl.pelotasplus.queens.R
-import pl.pelotasplus.queens.domain.model.Avatar
+import pl.pelotasplus.queens.domain.Avatar
 import javax.inject.Inject
 
 class AvatarRepository @Inject constructor() {

@@ -3,13 +3,10 @@ package pl.pelotasplus.queens.features.pick_avatar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.core.ObserveEffects
-import pl.pelotasplus.queens.domain.model.Avatar
-import pl.pelotasplus.queens.ui.theme.NQueensTheme
+import pl.pelotasplus.queens.domain.Avatar
 
 @Composable
 fun PickAvatarScreen(

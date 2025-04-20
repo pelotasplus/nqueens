@@ -21,8 +21,8 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pelotasplus.queens.R
-import pl.pelotasplus.queens.core.GameBoardState
-import pl.pelotasplus.queens.domain.model.Avatar
+import pl.pelotasplus.queens.domain.GameBoardState
+import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.ui.composable.GameBoard
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 import kotlin.math.abs
