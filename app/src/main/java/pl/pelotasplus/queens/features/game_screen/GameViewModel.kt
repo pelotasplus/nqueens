@@ -14,12 +14,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import pl.pelotasplus.queens.core.GameBoardState
+import pl.pelotasplus.queens.core.Position
+import pl.pelotasplus.queens.core.PositionState.BlockedBy
 import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.domain.model.Avatar
 import pl.pelotasplus.queens.navigation.MainDestinations
-import pl.pelotasplus.queens.ui.composable.GameBoardPosition
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState.BlockedBy
-import pl.pelotasplus.queens.ui.composable.GameBoardState
 import javax.inject.Inject
 
 @HiltViewModel
@@ -119,12 +119,7 @@ class GameViewModel @Inject constructor(
                 _state.update { currentState ->
                     currentState.copy(
                         boardState = currentState.boardState.shakeQueen(
-                            listOf(
-                                GameBoardPosition(
-                                    event.position.row,
-                                    event.position.col
-                                )
-                            ),
+                            listOf(event.position),
                             false
                         )
                     )
@@ -162,7 +157,7 @@ class GameViewModel @Inject constructor(
     sealed interface Event {
         data object OnPlayAgainClicked : Event
         data class LoadSelectedAvatar(val avatarId: Int) : Event
-        data class OnTileClicked(val position: GameBoardPosition) : Event
-        data class OnAnimationFinished(val position: GameBoardPosition) : Event
+        data class OnTileClicked(val position: Position) : Event
+        data class OnAnimationFinished(val position: Position) : Event
     }
 }

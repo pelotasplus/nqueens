@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import pl.pelotasplus.queens.core.GameBoardState
+import pl.pelotasplus.queens.core.PositionState
 import pl.pelotasplus.queens.features.game_screen.ShakingImage
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
@@ -72,7 +74,7 @@ fun GameBoard(
                     val translationY = row * tileSizePx
 
                     when (gridState) {
-                        is GameBoardPositionState.BlockedBy -> {
+                        is PositionState.BlockedBy -> {
                             // uncomment to show blocked positions
                             /*
                             val sb = StringBuilder()
@@ -92,11 +94,11 @@ fun GameBoard(
                              */
                         }
 
-                        is GameBoardPositionState.Empty -> {
+                        is PositionState.Empty -> {
                             // nothing to show
                         }
 
-                        is GameBoardPositionState.Queen -> {
+                        is PositionState.Queen -> {
                             ShakingImage(
                                 queen = gridState,
                                 imageResId = state.avatar,

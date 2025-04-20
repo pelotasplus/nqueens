@@ -14,12 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.util.lerp
-import pl.pelotasplus.queens.ui.composable.GameBoardPositionState
+import pl.pelotasplus.queens.core.PositionState
 
 
 @Composable
-fun ShakingImage(
-    queen: GameBoardPositionState.Queen,
+internal fun ShakingImage(
+    queen: PositionState.Queen,
     @DrawableRes imageResId: Int,
     modifier: Modifier = Modifier,
     onAnimationFinished: () -> Unit = {}

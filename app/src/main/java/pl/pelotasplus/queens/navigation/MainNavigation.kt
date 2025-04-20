@@ -35,7 +35,7 @@ fun MainNavigation(
     paddingValues: PaddingValues
 ) {
     NavHost(
-        modifier = Modifier.Companion.padding(paddingValues),
+        modifier = Modifier.padding(paddingValues),
         navController = navController,
         startDestination = MainDestinations.GameScreen(1, 4)
     ) {

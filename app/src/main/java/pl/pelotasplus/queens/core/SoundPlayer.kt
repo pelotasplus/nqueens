@@ -1,4 +1,4 @@
-package pl.pelotasplus.queens.features.game_screen
+package pl.pelotasplus.queens.core
 
 import android.content.Context
 import android.media.MediaPlayer
