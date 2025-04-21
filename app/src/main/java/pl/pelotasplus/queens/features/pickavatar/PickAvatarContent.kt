@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,7 +65,7 @@ internal fun PickAvatarContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Select your avatar",
+                        text = stringResource(R.string.pick_avatar_title),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 }
@@ -151,7 +152,7 @@ internal fun PickAvatarContent(
                     }
                 ) {
                     Text(
-                        "Pick ${selectedAvatar?.name.orEmpty()}!",
+                        stringResource(R.string.pick_avatar_pick, selectedAvatar?.name.orEmpty()),
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

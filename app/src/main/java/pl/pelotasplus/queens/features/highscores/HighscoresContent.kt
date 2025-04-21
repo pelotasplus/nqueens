@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.domain.Avatar
@@ -27,13 +28,13 @@ fun HighscoresContent(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Highscores")
+                    Text(stringResource(R.string.highscores_title))
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUpClick) {
                         Image(
                             painter = painterResource(R.drawable.go_back),
-                            contentDescription = "Go back"
+                            contentDescription = stringResource(R.string.global_go_back)
                         )
                     }
                 },

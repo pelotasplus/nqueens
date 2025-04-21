@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -52,7 +53,7 @@ fun FinishedDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "$winnerName wins!",
+                    text = stringResource(R.string.finished_dialog_title, winnerName),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -61,7 +62,7 @@ fun FinishedDialog(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Time: $timeElapsed",
+                    text = stringResource(R.string.finished_dialog_message, timeElapsed),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.secondary
                 )
@@ -78,7 +79,7 @@ fun FinishedDialog(
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
-                    Text("Play Again", modifier = Modifier.padding(start = 8.dp))
+                    Text(stringResource(R.string.finished_dialog_play_again), modifier = Modifier.padding(start = 8.dp))
                 }
             }
         }

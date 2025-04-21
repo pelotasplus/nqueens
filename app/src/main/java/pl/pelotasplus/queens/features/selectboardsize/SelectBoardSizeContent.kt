@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pelotasplus.queens.R
@@ -53,7 +54,7 @@ internal fun SelectBoardSizeContent(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Select board size",
+                        text = stringResource(R.string.select_size_title),
                         style = MaterialTheme.typography.titleLarge,
                     )
                 },
@@ -61,7 +62,7 @@ internal fun SelectBoardSizeContent(
                     IconButton(onClick = onNavigateUpClick) {
                         Image(
                             painter = painterResource(R.drawable.go_back),
-                            contentDescription = "Go back"
+                            contentDescription = stringResource(R.string.global_go_back)
                         )
                     }
                 },
@@ -108,7 +109,11 @@ internal fun SelectBoardSizeContent(
                     onBoardSizeSelect(sliderPosition.toInt())
                 }) {
                 Text(
-                    "Pick ${sliderPosition.toInt()}x${sliderPosition.toInt()}",
+                    stringResource(
+                        R.string.select_size_pick,
+                        sliderPosition.toInt(),
+                        sliderPosition.toInt()
+                    ),
                     style = MaterialTheme.typography.bodyLarge
                 )
             }

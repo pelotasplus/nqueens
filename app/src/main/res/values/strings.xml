@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">N-Queens</string>
+
+    <string name="global.go_back">Go back</string>
+
+    <string name="finished_dialog.title">%1$s wins!</string>
+    <string name="finished_dialog.message">Time: %1$s</string>
+    <string name="finished_dialog.play_again">Play Again</string>
+
+    <string name="highscores.title">Highscores</string>
+    <string name="highscores.error">Sadly we cannot load highscores at this time</string>
+    <string name="highscores.message">smashed %1$sx%2$s in just %3$s</string>
+
+    <string name="pick_avatar.title">Select your avatar</string>
+    <string name="pick_avatar.pick">Pick %1$s!</string>
+
+    <string name="select_size.title">Select board size</string>
+    <string name="select_size.pick">Pick %1$sx%2$s</string>
 </resources>
