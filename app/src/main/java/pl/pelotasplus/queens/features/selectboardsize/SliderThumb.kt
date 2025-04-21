@@ -55,7 +55,7 @@ internal fun SliderThumb(
             contentDescription = null,
             modifier = Modifier
                 .scale(1.6f)
-                .align(Alignment.Companion.Center)
+                .align(Alignment.Center)
         )
     }
 }

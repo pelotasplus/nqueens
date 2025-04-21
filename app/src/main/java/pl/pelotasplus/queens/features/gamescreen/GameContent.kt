@@ -16,8 +16,12 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pelotasplus.queens.R
@@ -25,6 +29,7 @@ import pl.pelotasplus.queens.domain.GameBoardState
 import pl.pelotasplus.queens.ui.composable.GameBoard
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 internal fun GameContent(
     state: GameViewModel.State,
@@ -35,11 +40,17 @@ internal fun GameContent(
     onAnimationFinish: (Int, Int) -> Unit = { _, _ -> }
 ) {
     Scaffold(modifier) {
-        Column(Modifier.padding(it).padding(8.dp)) {
+        Column(
+            Modifier
+                .padding(it)
+                .padding(8.dp)
+        ) {
             Row {
                 Image(
                     painter = painterResource(R.drawable.trophy),
                     modifier = Modifier
+                        .semantics { testTagsAsResourceId = true }
+                        .testTag("Highscores")
                         .size(80.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -54,7 +65,10 @@ internal fun GameContent(
                 Spacer(Modifier.weight(1f))
 
                 RestartButton(
-                    onRetryClick = onRetryClick
+                    onRetryClick = onRetryClick,
+                    modifier = Modifier
+                        .semantics { testTagsAsResourceId = true }
+                        .testTag("Restart")
                 )
             }
 
@@ -62,7 +76,7 @@ internal fun GameContent(
                 modifier = Modifier.weight(1f)
             ) {
                 GameBoard(
-                    modifier = Modifier.align(Alignment.Companion.Center),
+                    modifier = Modifier.align(Alignment.Center),
                     state = state.boardState,
                     onTileClick = onTileClick,
                     onAnimationFinish = onAnimationFinish
@@ -70,7 +84,7 @@ internal fun GameContent(
             }
 
             Row {
-                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Image(
                         painter = painterResource(
                             id = state.selectedAvatar?.image ?: R.drawable.avatar1
@@ -81,13 +95,16 @@ internal fun GameContent(
 
                     Text(
                         text = state.boardState.movesLeft.toString(),
-                        style = MaterialTheme.typography.displayLarge
+                        style = MaterialTheme.typography.displayLarge,
+                        modifier = Modifier
+                            .semantics { testTagsAsResourceId = true }
+                            .testTag("MovesLeft")
                     )
                 }
 
                 Spacer(Modifier.weight(1f))
 
-                Row(verticalAlignment = Alignment.Companion.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     InfiniteTimer(
                         state.gameStatus == GameViewModel.State.GameStatus.InProgress,
                         state.gameStartTime

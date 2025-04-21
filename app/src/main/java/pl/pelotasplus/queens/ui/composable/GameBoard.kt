@@ -12,15 +12,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.tooling.preview.Preview
 import pl.pelotasplus.queens.domain.GameBoardState
 import pl.pelotasplus.queens.domain.PositionState
 import pl.pelotasplus.queens.features.gamescreen.ShakingImage
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameBoard(
     state: GameBoardState,
@@ -45,6 +50,8 @@ fun GameBoard(
                     val isLight = (row + col) % 2 == 0
                     Box(
                         modifier = Modifier
+                            .semantics { testTagsAsResourceId = true }
+                            .testTag("Grid${row}x${col}")
                             .size(tileSize)
                             .graphicsLayer(
                                 translationX = col * tileSizePx,

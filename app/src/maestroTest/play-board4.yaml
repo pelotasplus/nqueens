@@ -1,0 +1,50 @@
+# play the game using 4x4 board
+
+appId: pl.pelotasplus.queens
+---
+- launchApp
+- waitForAnimationToEnd
+- swipe:
+    start: 90%,30%
+    end: 60%,30%
+    duration: 300
+- tapOn:
+    text: "Pick Lola!"
+- tapOn:
+    text: "Pick 4x4"
+- assertVisible:
+    id: "MovesLeft"
+    text: "4"
+- tapOn:
+    id: "Grid1x0"
+- assertVisible:
+    id: "MovesLeft"
+    text: "3"
+- tapOn:
+    id: "Grid0x2"
+- assertVisible:
+    id: "MovesLeft"
+    text: "2"
+- tapOn:
+    id: "Grid3x1"
+- assertVisible:
+    id: "MovesLeft"
+    text: "1"
+- tapOn:
+    id: "Grid2x3"
+- tapOn:
+    point: 150,150
+- assertVisible:
+    id: "MovesLeft"
+    text: "0"
+- tapOn:
+    id: "Restart"
+- assertVisible:
+    id: "MovesLeft"
+    text: "4"
+- tapOn:
+    id: "Highscores"
+- assertVisible:
+    text: "Lola"
+- assertVisible:
+    text: "smashed 4x4 in just.*"

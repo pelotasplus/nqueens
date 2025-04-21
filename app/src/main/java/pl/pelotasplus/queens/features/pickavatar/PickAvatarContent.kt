@@ -28,11 +28,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,7 +46,7 @@ import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.ui.theme.NQueensTheme
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 internal fun PickAvatarContent(
     state: PickAvatarViewModel.State,
@@ -79,23 +83,25 @@ internal fun PickAvatarContent(
             HorizontalPager(
                 state = pagerState,
                 contentPadding = PaddingValues(horizontal = 100.dp),
-                modifier = Modifier.weight(0.5f)
+                modifier = Modifier
+                    .weight(0.5f)
             ) { currentPage ->
                 val avatar = state.avatars[currentPage]
                 Box(
-                    modifier = Modifier.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = ripple(bounded = false),
-                        onClick = {
-                            selectedAvatar?.let { onAvatarSelect(it) }
-                        }
-                    )
+                    modifier = Modifier
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = false),
+                            onClick = {
+                                selectedAvatar?.let { onAvatarSelect(it) }
+                            }
+                        )
                 ) {
                     Image(
                         painter = painterResource(id = avatar.image),
                         contentDescription = avatar.bio,
                         modifier = Modifier
-                            .align(Alignment.Companion.Center)
+                            .align(Alignment.Center)
                             .clip(RoundedCornerShape(16.dp))
                             .graphicsLayer {
                                 val pageOffset = ((pagerState.currentPage - currentPage)
@@ -127,16 +133,16 @@ internal fun PickAvatarContent(
                     text = selectedAvatar?.name.orEmpty(),
                     style = MaterialTheme.typography.displayMedium,
                     modifier = Modifier
-                        .align(Alignment.Companion.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally)
                         .padding(16.dp)
                 )
 
                 Text(
                     text = selectedAvatar?.bio.orEmpty(),
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Companion.Center,
+                    textAlign = TextAlign.Center,
                     modifier = Modifier
-                        .align(Alignment.Companion.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally)
                         .padding(16.dp)
                 )
 
@@ -144,7 +150,7 @@ internal fun PickAvatarContent(
 
                 Button(
                     modifier = Modifier
-                        .align(Alignment.Companion.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally)
                         .fillMaxWidth()
                         .padding(32.dp),
                     onClick = {

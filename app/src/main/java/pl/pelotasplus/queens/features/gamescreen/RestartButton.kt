@@ -22,6 +22,7 @@ import pl.pelotasplus.queens.R
 
 @Composable
 internal fun RestartButton(
+    modifier: Modifier = Modifier,
     onRetryClick: () -> Unit = {}
 ) {
     val rotation = remember { Animatable(0f) }
@@ -41,7 +42,7 @@ internal fun RestartButton(
 
     Image(
         painter = painterResource(R.drawable.retry),
-        modifier = Modifier
+        modifier = modifier
             .size(80.dp)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },

@@ -52,7 +52,7 @@ internal fun HighscoresContentLoaded(
                         painter = painterResource(highscore.avatar.image),
                         contentDescription = null,
                         modifier = Modifier
-                            .align(Alignment.Companion.CenterVertically)
+                            .align(Alignment.CenterVertically)
                             .width(40.dp)
                     )
                     Column(
@@ -65,7 +65,7 @@ internal fun HighscoresContentLoaded(
                                 highscore.avatar.name,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier
-                                    .align(Alignment.Companion.Bottom)
+                                    .align(Alignment.Bottom)
                                     .weight(1f)
                             )
                             Text(
