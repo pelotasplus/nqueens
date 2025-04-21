@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -49,6 +50,13 @@ class HighscoresViewModel @Inject constructor(
                             )
                         }
                     }
+                    .catch {
+                        _state.update {
+                            it.copy(
+                                hasError = true
+                            )
+                        }
+                    }
                     .launchIn(viewModelScope)
             }
 
@@ -62,7 +70,8 @@ class HighscoresViewModel @Inject constructor(
 
     data class State(
         val highscores: List<Highscore> = emptyList(),
-        val isLoading: Boolean = true
+        val isLoading: Boolean = true,
+        val hasError: Boolean = false
     )
 
     sealed interface Effect {

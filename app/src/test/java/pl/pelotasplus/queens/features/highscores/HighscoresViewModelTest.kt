@@ -7,6 +7,7 @@ import io.mockk.verify
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -17,6 +18,7 @@ import pl.pelotasplus.queens.MainDispatcherRule
 import pl.pelotasplus.queens.data.HighscoreRepository
 import pl.pelotasplus.queens.domain.Avatar
 import pl.pelotasplus.queens.domain.Highscore
+import java.io.IOException
 
 class HighscoresViewModelTest {
 
@@ -45,6 +47,8 @@ class HighscoresViewModelTest {
         val sut = createSut()
 
         assertEquals(emptyList<Highscore>(), sut.state.value.highscores)
+        assertEquals(true, sut.state.value.isLoading)
+        assertEquals(false, sut.state.value.hasError)
     }
 
     @Test
@@ -54,7 +58,22 @@ class HighscoresViewModelTest {
         mainDispatcherRule.dispatcher.scheduler.runCurrent()
 
         assertEquals(highscores, sut.state.value.highscores)
+        assertEquals(false, sut.state.value.isLoading)
+        assertEquals(false, sut.state.value.hasError)
+        verify { highscoreRepository.getHighscores() }
+    }
 
+    @Test
+    fun `LoadHighscores with exception`() {
+        every { highscoreRepository.getHighscores() } returns flow { throw IOException() }
+
+        val sut = createSut()
+
+        mainDispatcherRule.dispatcher.scheduler.runCurrent()
+
+        assertEquals(emptyList<Highscore>(), sut.state.value.highscores)
+        assertEquals(false, sut.state.value.isLoading)
+        assertEquals(true, sut.state.value.hasError)
         verify { highscoreRepository.getHighscores() }
     }
 
