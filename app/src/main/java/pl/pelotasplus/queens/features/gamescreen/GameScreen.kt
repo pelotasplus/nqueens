@@ -12,10 +12,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pl.pelotasplus.queens.R
 import pl.pelotasplus.queens.core.ObserveEffects
-import pl.pelotasplus.queens.domain.GridPosition
 import pl.pelotasplus.queens.core.SoundPlayer
 import pl.pelotasplus.queens.core.formatTime
 import pl.pelotasplus.queens.core.vibrate
+import pl.pelotasplus.queens.domain.GridPosition
 
 @Composable
 fun GameScreen(
@@ -27,7 +27,7 @@ fun GameScreen(
     val player = remember { SoundPlayer(context) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     var showFinishedDialog by remember {
-        mutableStateOf<GameViewModel.Effect.ShowFinished.WinnerDetails?>(
+        mutableStateOf<GameViewModel.Effect.ShowFinished?>(
             null
         )
     }
@@ -41,7 +41,7 @@ fun GameScreen(
     ObserveEffects(viewModel.effect) { effect ->
         when (effect) {
             is GameViewModel.Effect.ShowFinished -> {
-                showFinishedDialog = effect.winnerDetails
+                showFinishedDialog = effect
             }
 
             GameViewModel.Effect.Vibrate -> {

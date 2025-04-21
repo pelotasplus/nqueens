@@ -29,6 +29,15 @@ class PickAvatarViewModelTest {
     fun `initial state check`() {
         val sut = createSut()
 
+        assertEquals(0, sut.state.value.avatars.size)
+    }
+
+    @Test
+    fun `LoadAvatars on init`() {
+        val sut = createSut()
+
+        mainDispatcherRule.dispatcher.scheduler.runCurrent()
+
         assertEquals(4, sut.state.value.avatars.size)
         assertEquals("Rita", sut.state.value.avatars.first().name)
 

@@ -52,6 +52,15 @@ class SelectBoardSizeViewModelTest {
     fun `initial state check`() {
         val sut = createSut()
 
+        assertEquals(null, sut.state.value.selectedAvatar)
+    }
+
+    @Test
+    fun `LoadSelectedAvatar on init`() {
+        val sut = createSut()
+
+        mainDispatcherRule.dispatcher.scheduler.runCurrent()
+
         assertEquals(1, sut.state.value.selectedAvatar!!.id)
         assertEquals("Rita", sut.state.value.selectedAvatar!!.name)
 
@@ -63,6 +72,8 @@ class SelectBoardSizeViewModelTest {
         val sut = createSut()
 
         sut.handleEvent(SelectBoardSizeViewModel.Event.LoadSelectedAvatar(2))
+
+        mainDispatcherRule.dispatcher.scheduler.runCurrent()
 
         assertEquals(2, sut.state.value.selectedAvatar!!.id)
         assertEquals("Lola", sut.state.value.selectedAvatar!!.name)
@@ -89,6 +100,8 @@ class SelectBoardSizeViewModelTest {
 
         sut.effect.test {
             sut.handleEvent(SelectBoardSizeViewModel.Event.OnBoardSizeSelected(4))
+
+            mainDispatcherRule.dispatcher.scheduler.runCurrent()
 
             assertEquals(
                 SelectBoardSizeViewModel.Effect.StartGame(

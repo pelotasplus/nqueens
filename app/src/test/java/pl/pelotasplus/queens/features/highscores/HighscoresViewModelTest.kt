@@ -5,8 +5,12 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Rule
 import org.junit.Test
 import pl.pelotasplus.queens.MainDispatcherRule
@@ -40,14 +44,26 @@ class HighscoresViewModelTest {
     fun `initial state values`() {
         val sut = createSut()
 
+        assertEquals(emptyList<Highscore>(), sut.state.value.highscores)
+    }
+
+    @Test
+    fun `LoadHighscores on init`() {
+        val sut = createSut()
+
+        mainDispatcherRule.dispatcher.scheduler.runCurrent()
+
         assertEquals(highscores, sut.state.value.highscores)
 
         verify { highscoreRepository.getHighscores() }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `LoadHighscores multiple calls`() {
         val sut = createSut()
+
+        Dispatchers.setMain(UnconfinedTestDispatcher())
 
         sut.handleEvent(HighscoresViewModel.Event.LoadHighscores)
 

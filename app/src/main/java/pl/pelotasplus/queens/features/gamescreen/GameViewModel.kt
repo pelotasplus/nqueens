@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +18,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
+import pl.pelotasplus.queens.core.CurrentTimeProvider
 import pl.pelotasplus.queens.data.AvatarRepository
 import pl.pelotasplus.queens.data.HighscoreRepository
 import pl.pelotasplus.queens.domain.Avatar
@@ -32,7 +35,8 @@ import javax.inject.Inject
 class GameViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val avatarRepository: AvatarRepository,
-    private val highscoreRepository: HighscoreRepository
+    private val highscoreRepository: HighscoreRepository,
+    private val currentTimeProvider: CurrentTimeProvider
 ) : ViewModel() {
 
     private val navArgs by lazy {
@@ -42,7 +46,7 @@ class GameViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         State(
             boardState = GameBoardState(size = navArgs.boardSize),
-            gameStartTime = System.currentTimeMillis(),
+            gameStartTime = currentTimeProvider.getCurrentTimeMillis(),
             gameStatus = State.GameStatus.InProgress
         )
     )
@@ -56,121 +60,146 @@ class GameViewModel @Inject constructor(
         handleEvent(Event.MonitorGameFinish)
     }
 
-    @Suppress("LongMethod")
     fun handleEvent(event: Event) {
         when (event) {
             is Event.LoadSelectedAvatar -> {
-                avatarRepository.getAvatar(event.avatarId)
-                    .onEach { selectedAvatar ->
-                        _state.update {
-                            it.copy(
-                                boardState = it.boardState.copy(
-                                    avatar = selectedAvatar.image
-                                ),
-                                selectedAvatar = selectedAvatar
-                            )
-                        }
-                    }
-                    .launchIn(viewModelScope)
+                handleLoadSelectedAvatar(event)
             }
 
             is Event.OnTileClicked -> {
-                if (_state.value.gameStatus == State.GameStatus.Finished) {
-                    return
-                }
-
-                _state.update { currentState ->
-                    if (currentState.boardState.grid[event.position.row][event.position.col] is BlockedBy) {
-                        viewModelScope.launch {
-                            _effect.send(Effect.Vibrate)
-                        }
-                    }
-                    currentState.copy(
-                        boardState = currentState.boardState.handleClick(
-                            event.position.row,
-                            event.position.col
-                        ),
-                    )
-                }
+                handleOnTileClicked(event)
             }
 
             Event.OnPlayAgainClicked -> {
-                _state.update {
-                    it.copy(
-                        boardState = it.boardState.emptyGrid(),
-                        gameStatus = State.GameStatus.InProgress,
-                        gameStartTime = System.currentTimeMillis()
-                    )
-                }
+                handleOnPlayAgainClicked()
             }
 
             is Event.OnAnimationFinished -> {
-                _state.update { currentState ->
-                    currentState.copy(
-                        boardState = currentState.boardState.shakeQueen(
-                            listOf(event.position),
-                            false
-                        )
-                    )
-                }
+                handleOnAnimationFinished(event)
             }
 
             Event.OnTrophyClicked -> {
-                viewModelScope.launch {
-                    _effect.send(Effect.ShowHighscores)
-                }
+                handleOnTrophyClicked()
             }
 
             Event.MonitorGameFinish -> {
-                _state
-                    .filter {
-                        it.selectedAvatar != null && it.boardState.movesLeft <= 0
-                                && it.gameStatus == State.GameStatus.InProgress
-                    }
-                    .distinctUntilChanged()
-                    .flatMapLatest { state ->
-                        check(state.selectedAvatar != null)
-                        highscoreRepository.addHighscore(
-                            Highscore(
-                                avatar = state.selectedAvatar,
-                                boardSize = state.boardState.size,
-                                startTime = state.gameStartTime,
-                                gameTime = (System.currentTimeMillis() - state.gameStartTime) / 1000
-                            )
-                        ).map {
-                            state
-                        }
-                    }
-                    .onEach { state ->
-                        check(state.selectedAvatar != null)
-                        _state.update {
-                            it.copy(
-                                gameStatus = State.GameStatus.Finished
-                            )
-                        }
-                        @Suppress("MagicNumber")
-                        _effect.send(
-                            Effect.ShowFinished(
-                                Effect.ShowFinished.WinnerDetails(
-                                    state.selectedAvatar,
-                                    (System.currentTimeMillis() - state.gameStartTime) / 1000
-                                )
-                            )
-                        )
-                    }
-                    .catch {
-                        // add error handling
-                    }
-                    .launchIn(viewModelScope)
+                handleMonitorGameFinish()
             }
         }
 
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun handleMonitorGameFinish() {
+        _state
+            .filter {
+                it.selectedAvatar != null && it.boardState.movesLeft <= 0
+                        && it.gameStatus == State.GameStatus.InProgress
+            }
+            .distinctUntilChanged()
+            .map {
+                _state.updateAndGet {
+                    it.copy(
+                        gameStatus = State.GameStatus.Finished,
+                        gameEndTime = currentTimeProvider.getCurrentTimeMillis()
+                    )
+                }
+            }
+            .flatMapLatest { state ->
+                highscoreRepository
+                    .addHighscore(
+                        Highscore(
+                            avatar = requireNotNull(state.selectedAvatar),
+                            boardSize = state.boardState.size,
+                            startTime = state.gameStartTime,
+                            gameTime = (state.gameEndTime - state.gameStartTime) / 1000
+                        )
+                    )
+                    .map { state }
+                    .catch { emit(state) }
+            }
+            .onEach { state ->
+                @Suppress("MagicNumber")
+                _effect.send(
+                    Effect.ShowFinished(
+                        requireNotNull(state.selectedAvatar),
+                        (state.gameEndTime - state.gameStartTime) / 1000
+                    )
+                )
+            }
+            .catch {
+                // add error handling
+            }
+            .launchIn(viewModelScope)
+    }
+
+    private fun handleOnTrophyClicked() {
+        viewModelScope.launch {
+            _effect.send(Effect.ShowHighscores)
+        }
+    }
+
+    private fun handleOnAnimationFinished(event: Event.OnAnimationFinished) {
+        _state.update { currentState ->
+            currentState.copy(
+                boardState = currentState.boardState.shakeQueen(
+                    listOf(event.position),
+                    false
+                )
+            )
+        }
+    }
+
+    private fun handleOnPlayAgainClicked() {
+        _state.update {
+            it.copy(
+                boardState = it.boardState.emptyGrid(),
+                gameStatus = State.GameStatus.InProgress,
+                gameStartTime = currentTimeProvider.getCurrentTimeMillis()
+            )
+        }
+    }
+
+    private fun handleOnTileClicked(event: Event.OnTileClicked) {
+        if (_state.value.gameStatus == State.GameStatus.Finished) {
+            return
+        }
+
+        _state.update { currentState ->
+            if (currentState.boardState.grid[event.position.row][event.position.col] is BlockedBy) {
+                viewModelScope.launch {
+                    _effect.send(Effect.Vibrate)
+                }
+            }
+            currentState.copy(
+                boardState = currentState.boardState.handleClick(
+                    event.position.row,
+                    event.position.col
+                ),
+            )
+        }
+    }
+
+    private fun handleLoadSelectedAvatar(event: Event.LoadSelectedAvatar) {
+        avatarRepository.getAvatar(event.avatarId)
+            .onEach { selectedAvatar ->
+                _state.update {
+                    it.copy(
+                        boardState = it.boardState.copy(
+                            avatar = selectedAvatar.image
+                        ),
+                        selectedAvatar = selectedAvatar
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     data class State(
         val boardState: GameBoardState,
         val selectedAvatar: Avatar? = null,
         val gameStartTime: Long = 0L,
+        val gameEndTime: Long = 0L,
         val gameStatus: GameStatus = GameStatus.NotStarted
     ) {
         enum class GameStatus {
@@ -183,13 +212,9 @@ class GameViewModel @Inject constructor(
     sealed interface Effect {
         data object Vibrate : Effect
         data class ShowFinished(
-            val winnerDetails: WinnerDetails,
-        ) : Effect {
-            data class WinnerDetails(
-                val avatar: Avatar,
-                val timeElapsed: Long
-            )
-        }
+            val avatar: Avatar,
+            val timeElapsed: Long
+        ) : Effect
 
         data object ShowHighscores : Effect
     }
