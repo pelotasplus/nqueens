@@ -9,7 +9,7 @@ To build the app, just open this project in Android Studio or build an APK using
 
 Here's video showing app in actions:
 
-<img src="https://github.com/pelotasplus/nqueens/blob/6e785629b7caa9d433721ff4a9202ec68cef2089/app/src/main/res/drawable/queens.gif" width="30%" height="auto">
+<img src="https://github.com/pelotasplus/nqueens/blob/99ddb674e6f41ef7b1dfbd1a182a41ce4386b6a3/queens.gif" width="30%" height="auto">
 
 # App architecture
 
