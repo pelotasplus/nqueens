@@ -10,6 +10,7 @@
     <string name="highscores.title">Highscores</string>
     <string name="highscores.error">Sadly we cannot load highscores at this time</string>
     <string name="highscores.message">smashed %1$sx%2$s in just %3$s</string>
+    <string name="highscores.empty">You don\'t have any highscores yet!</string>
 
     <string name="pick_avatar.title">Select your avatar</string>
     <string name="pick_avatar.pick">Pick %1$s!</string>

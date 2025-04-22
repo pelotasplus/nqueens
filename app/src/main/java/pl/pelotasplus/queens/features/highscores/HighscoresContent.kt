@@ -45,6 +45,8 @@ fun HighscoresContent(
             HighscoresContentLoading(Modifier.padding(it))
         } else if (state.hasError) {
             HighscoresContentError(Modifier.padding(it))
+        } else if (state.highscores.isEmpty()) {
+            HighscoresContentEmpty(Modifier.padding(it))
         } else {
             HighscoresContentLoaded(state, Modifier.padding(it))
         }
@@ -68,7 +70,44 @@ private fun HighscoresContentPreview() {
                     startTime = 1709048734,
                     gameTime = 40L
                 )
-            )
+            ),
+            isLoading = false,
         )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HighscoresEmptyPreview() {
+    HighscoresContent(
+        state = HighscoresViewModel.State(
+            highscores = emptyList(),
+            isLoading = false,
+            hasError = false
+        ),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HighscoresErrorPreview() {
+    HighscoresContent(
+        state = HighscoresViewModel.State(
+            highscores = emptyList(),
+            isLoading = false,
+            hasError = true
+        ),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HighscoresIsLoadingPreview() {
+    HighscoresContent(
+        state = HighscoresViewModel.State(
+            highscores = emptyList(),
+            isLoading = true,
+            hasError = false
+        ),
     )
 }
