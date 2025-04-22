@@ -1,9 +1,7 @@
-package pl.pelotasplus.queens;
+package pl.pelotasplus.queens
 
-import android.app.Application;
-
-import dagger.hilt.android.HiltAndroidApp;
+import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-public class QueensApp extends Application {
-}
+class QueensApp : Application()
