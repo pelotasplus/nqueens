@@ -24,7 +24,7 @@ App is using:
 
 # Game mechanics
 
-After selecting the board size, ie. 4x4, an in-memory representation is created -- see [GameBoardState].
+After selecting the board size, ie. 4x4, an in-memory representation is created -- see [GameBoardState](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/GameBoardState.kt#L6).
 This state is immutable, so any changes create a brand new instance.
 
 The game board itself is represented by two dimensional array of [PositionState]s.
