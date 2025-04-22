@@ -9,7 +9,7 @@ To build the app, just open this project in Android Studio or build an APK using
 
 Here's video showing app in actions:
 
-[![Watch the video]](https://github.com/pelotasplus/nqueens/blob/3908da2c1e9111ac6bc9ce3358442dca7cc71ba8/queens.webm)
+![](queens.webm)
 
 # App architecture
 
