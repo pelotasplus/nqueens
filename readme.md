@@ -1,46 +1,40 @@
-📌 Problem Statement
+## N Queens
 
-Build an Android application where the player plays a puzzle game based on the N-Queens problem.
-The user’s goal is to place n queens on an nxn chessboard such that no two queens threaten each other (no same row, column, or diagonal).
 
-While we don't mind you leverage modern code generation tools, we expect you to fully understand and own 100% of the code and disclose the extent of their use in your workflow.
+# Build instructions
 
-Requirements
+To build the app, just open this project in Android Studio or build an APK using `./gradlew assemble`
 
-♟️Gameplay
- - Let the player select a board size (n ≥ 4, since below that there are no solutions).
- - Render an interactive n×n chessboard.
- - User can tap to place/remove queens.
- - Provide real-time validation of queen placement and highlight conflicts.
- - Display a win screen when the user successfully solves it.
+# App in action
 
-🎨 UI
+Here's video showing app in actions:
 
- - Dynamic chessboard that can be of different sizes.
- - Queens should be visually clear (♛, image or icon).
- - Conflicting placements should be clearly marked.
- - Simple, extensible and clean design.
+<img src="https://github.com/pelotasplus/nqueens/blob/6e785629b7caa9d433721ff4a9202ec68cef2089/app/src/main/res/drawable/queens.gif" width="30%" height="auto">
 
-💡 Nice-to-haves
+# App architecture
 
- - Show a counter of queens left.
- - Let user restart/reset the game.
- - Store and display best times.
- - Decorate via sfx and animations the queen placement or victory celebration.
+App is using:
 
-📐 Testing & Architecture
+ - Dagger Hilt for DI
+ - Jetpack Compose w/ Compose Navigation for the UI layer
+ - mockk and turbine for unit tests
+ - maestro for UI tests
+ - simple MVI-alike framework for ViewModels
+ - Room for storing highscores
 
- - Focus on lean but strong architecture (your choice).
- - Have a clear testing strategy and strong coverage.
- - Maintain clear separation of UI and logic.
- - During the follow up interview you will walk us through the code and we will build an extension together so feel comfortable with presenting and working on the codebase.
+# Game mechanics
 
-📦 Submission
+After selecting the board size, ie. 4x4, an in-memory representation is created -- see [GameBoardState](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/GameBoardState.kt#L6).
+This state is immutable, so any changes create a brand new instance.
 
- - Send the url of a github repo with your solution to your recruiter together with:
- - A README including:
-   - How to test/build/run
-   - Architecture decisions
-   - A short video of your app, feel free to edit it or add a voice over in case you want to improve its presentation.
+The game board itself is represented by two dimensional array of [PositionStates](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/PositionState.kt#L4).
+Tapping on board positions toggles values stored in the array and updates the UI accordingly.
 
-Use Kotlin
+Putting a queen on the board, ie. tapping on a position that is [PositionState.Empty](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/PositionState.kt#L4) not
+only flips that position to [PositionState.Queen](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/PositionState.kt#L6) but also visits all other positions that are covered by the queen
+and flips them to [PositionState.BlockedBy](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/PositionState.kt#L10).
+See [handleClick](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/GameBoardState.kt#L20) and [blockOthers](https://github.com/pelotasplus/nqueens/blob/58b5e0016dd1ae652b162a8998e11ec08964b677/app/src/main/java/pl/pelotasplus/queens/domain/GameBoardState.kt#L77) for exact algorithm.
+
+When users tap on a visibly empty position but covered by one or more queens, game can immediately react accordingly.
+
+After every game a highscore entry is created and stored locally in on-device SQL database.
