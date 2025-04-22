@@ -1,5 +1,6 @@
 ## N Queens
 
+
 # Build instructions
 
 To build the app, just open this project in Android Studio or build an APK using `./gradlew assemble`
@@ -7,6 +8,8 @@ To build the app, just open this project in Android Studio or build an APK using
 # App in action
 
 Here's video showing app in actions:
+
+[![Watch the video]](https://github.com/pelotasplus/nqueens/blob/3908da2c1e9111ac6bc9ce3358442dca7cc71ba8/queens.webm)
 
 # App architecture
 
